@@ -5,7 +5,7 @@
   
 
 
-<html class="theme-next pisces use-motion" lang="zh_Hans">
+<html class="theme-next mist use-motion" lang="zh-Hans">
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -74,6 +74,8 @@
 
 
 
+  <link rel="alternate" href="/atom.xml" title="as3522" type="application/atom+xml">
+
 
 
 
@@ -86,7 +88,7 @@
 <meta property="og:url" content="http://www.tangyilong.com/index.html">
 <meta property="og:site_name" content="as3522">
 <meta property="og:description" content="personal blog">
-<meta property="og:locale" content="zh_Hans">
+<meta property="og:locale" content="zh-Hans">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="as3522">
 <meta name="twitter:description" content="personal blog">
@@ -97,15 +99,15 @@
   var NexT = window.NexT || {};
   var CONFIG = {
     root: '/',
-    scheme: 'Pisces',
+    scheme: 'Mist',
     version: '5.1.4',
-    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    sidebar: {"position":"right","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
     fancybox: true,
     tabs: true,
     motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
     duoshuo: {
       userId: '0',
-      author: 'Author'
+      author: '博主'
     },
     algolia: {
       applicationID: '',
@@ -137,14 +139,20 @@
 
 </head>
 
-<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh_Hans">
+
+   <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;"></canvas> 
+      <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+	     <script type="text/javascript" src="/js/src/fireworks.js"></script>
+
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
 
   
   
     
   
 
-  <div class="container sidebar-position-left 
+  <div class="container sidebar-position-right 
   page-home">
     <div class="headband"></div>
 
@@ -184,49 +192,49 @@
         <li class="menu-item menu-item-home">
           <a href="/" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
             
-            Home
+            首页
           </a>
         </li>
       
         
         <li class="menu-item menu-item-about">
-          <a href="/about" rel="section">
+          <a href="/about/" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
             
-            About
+            关于
           </a>
         </li>
       
         
         <li class="menu-item menu-item-tags">
-          <a href="/tags" rel="section">
+          <a href="/tags/" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
             
-            Tags
+            标签
           </a>
         </li>
       
         
         <li class="menu-item menu-item-categories">
-          <a href="/categories" rel="section">
+          <a href="/categories/" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
             
-            Categories
+            分类
           </a>
         </li>
       
         
         <li class="menu-item menu-item-archives">
-          <a href="/archives" rel="section">
+          <a href="/archives/" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br>
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
             
-            Archives
+            归档
           </a>
         </li>
       
@@ -263,7 +271,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.tangyilong.com/2018/11/23/GCC编译过程和动态静态库-1/">
+    <link itemprop="mainEntityOfPage" href="http://www.tangyilong.com/2018/11/29/hello/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="as3522">
@@ -282,7 +290,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/11/23/GCC编译过程和动态静态库-1/" itemprop="url">GCC编译过程和动态静态库</a></h1>
+                <a class="post-title-link" href="/2018/11/29/hello/" itemprop="url">hello</a></h1>
         
 
         <div class="post-meta">
@@ -292,10 +300,10 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Posted on</span>
+                <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-11-23T11:00:15+08:00">
-                2018-11-23
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-29T20:00:58+08:00">
+                2018-11-29
               </time>
             
 
@@ -334,31 +342,15 @@
       
         
           
-            <h1 id="GCC编译过程和动态静态库"><a href="#GCC编译过程和动态静态库" class="headerlink" title="GCC编译过程和动态静态库"></a>GCC编译过程和动态静态库</h1><p><em>outline</em></p>
-<p>[TOC]</p>
-<p>本质上来说库是一种可执行代码的二进制形式，可以被操作系统载入内存执行。<strong>库有两种：静态库（.a、.lib）和动态库（.so、.dll）。 windows上对应的是.lib .dll linux上对应的是.a .so</strong></p>
-<p>编译过程：</p>
-<p><img src="https://images2017.cnblogs.com/blog/1055519/201710/1055519-20171030213121183-1416117803.png" alt="img"></p>
-<h2 id="静态库"><a href="#静态库" class="headerlink" title="静态库"></a>静态库</h2><p>之所以成为【静态库】，<strong>是因为在链接阶段，会将汇编生成的目标文件</strong>.o与引用到的库一起链接打包到可执行文件中。因此对应的链接方式称为静态链接。</p>
-<p>试想一下，静态库与汇编生成的目标文件一起链接为可执行文件，<strong>那么静态库必定跟</strong>.o文件格式相似<strong>其实一个静态库可以简单看成是</strong>一组目标文件（.o/.obj文件）的集合，即很多目标文件经过压缩打包后形成的一个文件。静态库特点总结：</p>
-<ul>
-<li>静态库对函数库的链接是放在编译时期完成的</li>
-<li>程序在运行时与函数库再无瓜葛，移植方便。</li>
-<li>浪费空间和资源，因为所有相关的目标文件与牵涉到的函数库被链接合成一个可执行文件。</li>
-</ul>
-<p>Linux静态库命名规范，必须是”lib[your_library_name].a”：lib为前缀，中间是静态库名，扩展名为==.a==</p>
-<p>通过上面的流程可以知道，Linux创建静态库过程如下：</p>
-<p>首先，将代码文件编译成目标文件.o（StaticMath.o）</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -c StaticMath.c -o StaticMath.o</span><br></pre></td></tr></table></figure>
-<p>注意带参数-c，否则直接编译为可执行文件</p>
-<p>然后，通过ar工具将目标文件打包成.a静态库文件</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ar -crv libstaticmath.a StaticMath.o</span><br></pre></td></tr></table></figure>
-<p>生成静态库<strong>libstaticmath.a</strong></p>
-<p><strong>使用</strong></p>
-<p>Linux下使用静态库，只需要在编译的时候，指定静态库的搜索路径（-L选项）、指定静态库名（不需要lib前缀和.a后缀，-l选项）</p>
-<p><code>`</code><br>gcc test.c -L ./ -lstaticmath</p>
-
+          hello
           
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/11/29/hello/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -405,7 +397,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.tangyilong.com/2018/11/23/GCC编译过程和动态静态库/">
+    <link itemprop="mainEntityOfPage" href="http://www.tangyilong.com/2018/11/29/ERROR-Local-hexo-not-found-in-Hexo/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="as3522">
@@ -424,7 +416,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/11/23/GCC编译过程和动态静态库/" itemprop="url">Untitled</a></h1>
+                <a class="post-title-link" href="/2018/11/29/ERROR-Local-hexo-not-found-in-Hexo/" itemprop="url">搭建Hexo执行 hexo 命令报错:ERROR Local hexo not found in xxx 二种解决方案</a></h1>
         
 
         <div class="post-meta">
@@ -434,10 +426,10 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Posted on</span>
+                <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-11-23T10:49:25+08:00">
-                2018-11-23
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-29T19:57:29+08:00">
+                2018-11-29
               </time>
             
 
@@ -476,208 +468,16 @@
       
         
           
-            <h1 id="GCC编译过程和动态静态库"><a href="#GCC编译过程和动态静态库" class="headerlink" title="GCC编译过程和动态静态库"></a>GCC编译过程和动态静态库</h1><p><em>outline</em></p>
-<p>[TOC]</p>
-<p>本质上来说库是一种可执行代码的二进制形式，可以被操作系统载入内存执行。<strong>库有两种：静态库（.a、.lib）和动态库（.so、.dll）。 windows上对应的是.lib .dll linux上对应的是.a .so</strong></p>
-<p>编译过程：</p>
-<p><img src="https://images2017.cnblogs.com/blog/1055519/201710/1055519-20171030213121183-1416117803.png" alt="img"></p>
-<h2 id="静态库"><a href="#静态库" class="headerlink" title="静态库"></a>静态库</h2><p>之所以成为【静态库】，<strong>是因为在链接阶段，会将汇编生成的目标文件</strong>.o与引用到的库一起链接打包到可执行文件中。因此对应的链接方式称为静态链接。</p>
-<p>试想一下，静态库与汇编生成的目标文件一起链接为可执行文件，<strong>那么静态库必定跟</strong>.o文件格式相似<strong>其实一个静态库可以简单看成是</strong>一组目标文件（.o/.obj文件）的集合，即很多目标文件经过压缩打包后形成的一个文件。静态库特点总结：</p>
-<ul>
-<li>静态库对函数库的链接是放在编译时期完成的</li>
-<li>程序在运行时与函数库再无瓜葛，移植方便。</li>
-<li>浪费空间和资源，因为所有相关的目标文件与牵涉到的函数库被链接合成一个可执行文件。</li>
-</ul>
-<p>Linux静态库命名规范，必须是”lib[your_library_name].a”：lib为前缀，中间是静态库名，扩展名为==.a==</p>
-<p>通过上面的流程可以知道，Linux创建静态库过程如下：</p>
-<p>首先，将代码文件编译成目标文件.o（StaticMath.o）</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -c StaticMath.c -o StaticMath.o</span><br></pre></td></tr></table></figure>
-<p>注意带参数-c，否则直接编译为可执行文件</p>
-<p>然后，通过ar工具将目标文件打包成.a静态库文件</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ar -crv libstaticmath.a StaticMath.o</span><br></pre></td></tr></table></figure>
-<p>生成静态库<strong>libstaticmath.a</strong></p>
-<p><strong>使用</strong></p>
-<p>Linux下使用静态库，只需要在编译的时候，指定静态库的搜索路径（-L选项）、指定静态库名（不需要lib前缀和.a后缀，-l选项）</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc test.c -L ./ -lstaticmath</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p>-L：表示要连接的库所在目录</p>
-</li>
-<li><p>-I：指定链接时需要的动态库，编译器查找动态连接库时有隐含的命名规则，即在给出的名字前面加上lib，后面加上.a或.so来确定库的名称。</p>
-</li>
-</ul>
-<h2 id="动态库"><a href="#动态库" class="headerlink" title="动态库"></a>动态库</h2><p>为什么需要动态库，其实也是静态库的特点导致。</p>
-<p><strong>空间浪费是静态库的一个问题。</strong></p>
-<p><img src="D:\Program Files\Typora\picture\16201613-5877f674048f45d58fe9bb40224d3b4d.png" alt="clip_image021[4]"></p>
-<p>另一个问题是静态库对程序的更新、部署和发布页会带来麻烦。如果静态库liba.lib更新了，所以使用它的应用程序都需要重新编译、发布给用户（对于玩家来说，可能是一个很小的改动，却导致整个程序重新下载，<strong>全量更新</strong>）</p>
-<p>动态库在程序编译时并不会被连接到目标代码中，而是在程序运行是才被载入。<strong>不同的应用程序如果调用相同的库，那么在内存里只需要有一份该共享库的实例</strong>，规避了空间浪费问题。动态库在程序运行是才被载入，也解决了静态库对程序的更新、部署和发布页会带来麻烦。用户只需要更新动态库即可，<strong>增量更新</strong>。</p>
-<p><img src="https://images2017.cnblogs.com/blog/1055519/201710/1055519-20171030213356699-652771916.png" alt="img"></p>
-<p> <strong>创建动态库</strong> </p>
-<p>动态链接库的名字形式为 libxxx.so，前缀是lib，后缀名为“.so”。</p>
-<ul>
-<li><p>针对于实际库文件，每个共享库都有个特殊的名字“soname”。在程序启动后，程序通过这个名字来告诉动态加载器该载入哪个共享库。</p>
-</li>
-<li><p>在文件系统中，soname仅是一个链接到实际动态库的链接。对于动态库而言，每个库实际上都有另一个名字给编译器来用。它是一个指向实际库镜像文件的链接文件（lib+soname+.so）</p>
-</li>
-</ul>
-<ul>
-<li><p>首先，生成目标文件，此时要加编译器选项-fpic</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -fPIC -c DynamicMath.cpp</span><br></pre></td></tr></table></figure>
-<p>-fPIC创建与地址无关的编译程序（pic，position independent code），是为了能够在多个应用程序间共享。</p>
-</li>
-<li><p>然后，生成动态库，此时要加链接器选项-shared</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">g++ -shared -o libdynmath.so DynamicMath.o</span><br></pre></td></tr></table></figure>
-<p>-shared指定生成动态链接库。<br>其实上面两个步骤可以合并为一个命令：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">g++ -fPIC -shared -o libdynmath.so DynamicMath.cpp</span><br></pre></td></tr></table></figure>
-<p><strong>使用动态库</strong></p>
-</li>
-</ul>
-<p>引用动态库编译成可执行文件（跟静态库方式一样）：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">g++ TestDynamicLibrary.cpp -L../DynamicLibrary -ldynmath</span><br></pre></td></tr></table></figure></p>
-<p>然后运行：./a.out，发现竟然报错了！！！</p>
-<p>解决方法：首先使用export LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH将当前目录加入LD_LIBRARY_PATH变量中。再次运行</p>
-<p>1) 当系统加载可执行代码时候，能够知道其所依赖的库的名字，但是还需要知道绝对路径。此时就需要系统动态载入器(dynamic linker/loader)。<br>2) 对于elf格式的可执行程序，是由ld-linux.so*来完成的，它先后搜索elf文件的DT_RPATH段—环境变量LD_LIBRARY_PATH—/etc/ld.so.cache文件列表—/lib/,/usr/lib 目录找到库文件后将其载入内存。<br>如何让系统能够找到它：<br>如果安装在/lib或者/usr/lib下，那么ld默认能够找到，无需其他操作。<br>如果安装在其他目录，需要将其添加到/etc/ld.so.cache文件中，步骤如下：<br>编辑/etc/ld.so.conf文件，加入库文件所在目录的路径<br>运行ldconfig ，该命令会重建/etc/ld.so.cache文件<br>我们将创建的动态库复制到/usr/lib下面，然后运行测试程序。</p>
-<h2 id="GCC编译过程"><a href="#GCC编译过程" class="headerlink" title="GCC编译过程"></a>GCC编译过程</h2><p>编译过程可以被细分为四个阶段：</p>
-<p><strong>预处理</strong>（ Pre-Processing ）<br><strong>编译</strong>（ Compiling ）<br><strong>汇编</strong>（ Asse mbling ）<br><strong>链接</strong>（ Linking ）</p>
-<p><img src="https://images2017.cnblogs.com/blog/1055519/201710/1055519-20171030215153808-700885788.png" alt="img"></p>
-<p><img src="https://images2017.cnblogs.com/blog/1055519/201710/1055519-20171030215322699-234712741.png" alt="img"></p>
-<p><strong>GCC编译过程</strong></p>
-<p>1）gcc 预处理阶段：主要对包含的头文件（＃include ）和宏定义（＃define,#ifdef … ）进行处理。可以使用“gcc -E” 让gcc 在预处理之后停止编译过程，生成 *.i 文件。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -E hello.c -o hello.i</span><br></pre></td></tr></table></figure>
-<p>2）gcc 编译阶段：gcc 首先要检查代码的规范性，是否有语法错误等。以确定代码实际要做的工作，在检查无误后，gcc 把代码翻译成汇编语言。用户可以使用-S 选项进行查看，该选项只进<br>行编译而不进行汇编，生成汇编代码。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -S hello.i -o hello.s</span><br></pre></td></tr></table></figure>
-<p>3）gcc 汇编阶段：生成目标代码 <em>.o ；有两种方式：使用 gcc 直接从源代码生成目标代码 gcc -c </em>.s -o <em>.o 以及使用汇编器从汇编代码生成目标代码 as </em>.s -o *.o</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gcc -c hello.s -o hello.o</span><br><span class="line">as hello.s -o hello.o</span><br></pre></td></tr></table></figure>
-<p>也可以直接使用as <em>.s, 将<strong>执行汇编、链接过程生成可执行文件a.out</strong>, 可以像上面使用<strong>-o 选项</strong>指定输出文件的格式。<br>4）gcc 链接阶段：生成可执行文件；可以生成的可执行文件格式有： a.out/</em>/,当然可能还有其它格式。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gcc hello.o     生成可执行文件 a.out</span><br><span class="line">gcc hello.o -o hello        生成可执行文件 hello</span><br></pre></td></tr></table></figure>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.tangyilong.com/2018/11/23/hello-world/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="as3522">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="as3522">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/11/23/hello-world/" itemprop="url">Hello World</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-11-23T10:49:20+08:00">
-                2018-11-23
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
-
-          
+          搭建Hexo执行 hexo 命令报错:ERROR Local hexo not found in xxx 二种解决方案第一种情况当输入hexo命令的时候会出现下面这张情况
+123root@:hexo_web# hexo -vERROR Local hexo not found in ~/share/
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/11/29/ERROR-Local-hexo-not-found-in-Hexo/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -757,10 +557,10 @@
             
               <div class="site-state-item site-state-posts">
               
-                <a href="/archives">
+                <a href="/archives/">
               
-                  <span class="site-state-item-count">3</span>
-                  <span class="site-state-item-name">posts</span>
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">日志</span>
                 </a>
               </div>
             
@@ -771,6 +571,13 @@
 
           </nav>
 
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
           
 
           
@@ -810,7 +617,7 @@
 </div>
 
 
-  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+  <div class="powered-by">个人网站 <a class="theme-link" target="_blank" href="http://www.as3522.com">as3522</a> </div>
 
 
 
@@ -818,7 +625,7 @@
 
 
 
-  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+  <div class="theme-info">By-as3522 </div>
 
 
 
@@ -865,6 +672,8 @@
   
 
 
+  
+
 
 
 
@@ -905,6 +714,11 @@
     <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
   
 
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
 
   
 
@@ -917,13 +731,6 @@
 
   
   
-
-
-  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
-
-  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
-
-
 
   
 

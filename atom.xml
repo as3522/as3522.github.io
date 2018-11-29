@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>as3522</title>
+  
+  
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="http://www.tangyilong.com/"/>
+  <updated>2018-11-29T12:03:30.697Z</updated>
+  <id>http://www.tangyilong.com/</id>
+  
+  <author>
+    <name>as3522</name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>hello</title>
+    <link href="http://www.tangyilong.com/2018/11/29/hello/"/>
+    <id>http://www.tangyilong.com/2018/11/29/hello/</id>
+    <published>2018-11-29T12:00:58.000Z</published>
+    <updated>2018-11-29T12:03:30.697Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="hello"><a href="#hello" class="headerlink" title="hello"></a>hello</h1>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h1 id=&quot;hello&quot;&gt;&lt;a href=&quot;#hello&quot; class=&quot;headerlink&quot; title=&quot;hello&quot;&gt;&lt;/a&gt;hello&lt;/h1&gt;
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>搭建Hexo执行 hexo 命令报错:ERROR Local hexo not found in xxx 二种解决方案</title>
+    <link href="http://www.tangyilong.com/2018/11/29/ERROR-Local-hexo-not-found-in-Hexo/"/>
+    <id>http://www.tangyilong.com/2018/11/29/ERROR-Local-hexo-not-found-in-Hexo/</id>
+    <published>2018-11-29T11:57:29.000Z</published>
+    <updated>2018-11-29T12:08:45.175Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="搭建Hexo执行-hexo-命令报错-ERROR-Local-hexo-not-found-in-xxx-二种解决方案"><a href="#搭建Hexo执行-hexo-命令报错-ERROR-Local-hexo-not-found-in-xxx-二种解决方案" class="headerlink" title="搭建Hexo执行 hexo 命令报错:ERROR Local hexo not found in xxx 二种解决方案"></a>搭建Hexo执行 hexo 命令报错:ERROR Local hexo not found in xxx 二种解决方案</h1><h2 id="第一种情况"><a href="#第一种情况" class="headerlink" title="第一种情况"></a>第一种情况</h2><p>当输入hexo命令的时候会出现下面这张情况</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">root@:hexo_web# hexo -v</span><br><span class="line">ERROR Local hexo not found in ~/share/Hexo/hexo_web</span><br><span class="line">ERROR Try running: 'npm install hexo --save'</span><br></pre></td></tr></table></figure><p>导致这个原因为在自己的博客文件夹中,.gitignore文件中添加了node_modules/,导致更新的时候,这个文件夹被忽略,没有被更新上去。</p><p>解决方案:</p><p>​    1.cmd进入博客当前文件夹路径</p><p>​    2.执行 npm install</p><p>​    3.执行 hexo server</p><p>​    4.执行成功后,再到博客下的git中执行 hexo 命令 发现可以执行成功。</p><h2 id="第二种情况"><a href="#第二种情况" class="headerlink" title="第二种情况"></a>第二种情况</h2><p>首先是我是在网上找到的第一种方案，但是没有效果，所以就自己试着寻找一些蛛丝马迹</p><p>首先你在你的hexo目录下面使用hexo命令是不成功的</p><p>但是呢，当你退到上层目录的时候，hexo命令却是可以正常使用的</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">root@:/home/share/Hexo/hexo_web# hexo -v</span><br><span class="line">ERROR Local hexo not found in ~/share/Hexo/hexo_web</span><br><span class="line">ERROR Try running: 'npm install hexo --save'</span><br><span class="line">root@:/home/share/Hexo/hexo_web# cd ..</span><br><span class="line">root@:/home/share/Hexo# hexo -v</span><br><span class="line">hexo: 3.8.0</span><br><span class="line">hexo-cli: 1.1.0</span><br><span class="line">os: Linux 4.15.0-39-generic linux x64</span><br><span class="line">http_parser: 2.8.0</span><br><span class="line">node: 4.2.6                      &lt;================</span><br><span class="line">v8: 6.8.275.32-node.36</span><br><span class="line">uv: 1.23.2</span><br><span class="line">zlib: 1.2.11</span><br><span class="line">ares: 1.14.0</span><br><span class="line">modules: 64</span><br><span class="line">nghttp2: 1.34.0</span><br><span class="line">napi: 3</span><br><span class="line">openssl: 1.1.0i</span><br><span class="line">icu: 62.1</span><br><span class="line">unicode: 11.0</span><br><span class="line">cldr: 33.1</span><br><span class="line">tz: 2018e</span><br></pre></td></tr></table></figure><p>我注意到有一个地方不太对，那就是node的版本是4.2.6，版本太老了。</p><p>所以我就试着更新node的版本，把node的版本更新到最新版10.13.0</p><p>更新之后我们再进入到hexo的博客目录下面去执行命令，查看结果</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">root@:/home/share/Hexo/hexo_web# hexo -v</span><br><span class="line">hexo: 3.8.0</span><br><span class="line">hexo-cli: 1.1.0</span><br><span class="line">os: Linux 4.15.0-39-generic linux x64</span><br><span class="line">http_parser: 2.8.0</span><br><span class="line">node: 10.13.0              &lt;==========================</span><br><span class="line">v8: 6.8.275.32-node.36</span><br><span class="line">uv: 1.23.2</span><br><span class="line">zlib: 1.2.11</span><br><span class="line">ares: 1.14.0</span><br><span class="line">modules: 64</span><br><span class="line">nghttp2: 1.34.0</span><br><span class="line">napi: 3</span><br><span class="line">openssl: 1.1.0i</span><br><span class="line">icu: 62.1</span><br><span class="line">unicode: 11.0</span><br><span class="line">cldr: 33.1</span><br><span class="line">tz: 2018e</span><br></pre></td></tr></table></figure><p>附上手动更新node的方法</p><h2 id="下载nodj二进制源码：xz结尾的压缩文件"><a href="#下载nodj二进制源码：xz结尾的压缩文件" class="headerlink" title="下载nodj二进制源码：xz结尾的压缩文件"></a>下载nodj二进制源码：xz结尾的压缩文件</h2><p><a href="https://nodejs.org/en/download/" target="_blank" rel="noopener">node官网</a></p><p>注意：选择合适版本，我使用的是ubuntu,所以选择linux包下载下来就是源码，解压之后就存在node和npm。无需重复编译。</p><h2 id="解压"><a href="#解压" class="headerlink" title="解压"></a>解压</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar xvf node-v9.5.0-linux-x64.tar.xz</span><br></pre></td></tr></table></figure><h2 id="配置环境变量"><a href="#配置环境变量" class="headerlink" title="配置环境变量"></a>配置环境变量</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/profile</span><br><span class="line"></span><br><span class="line"># 在底部添加</span><br><span class="line">export NODE_HOME=/opt/nodejs/node-v11.1.0-linux-x64/bin</span><br><span class="line">export PATH=$NODE_HOME:$PATH</span><br><span class="line"></span><br><span class="line">#激活修改</span><br><span class="line">source /etc/profile</span><br><span class="line"></span><br><span class="line"># 验证</span><br><span class="line">node -v</span><br><span class="line">npm -v</span><br><span class="line"></span><br><span class="line"># 如果全局安装pm2包，可以验证</span><br><span class="line">pm2 list</span><br></pre></td></tr></table></figure><p>那么我不是这么使用的，我是直接复制粘贴覆盖原来的node文件</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">root@:# which node</span><br><span class="line">/usr/bin/node</span><br><span class="line"><span class="meta">#</span> 到下载的最新node目录下面</span><br><span class="line"><span class="meta">#</span> 将bin里面的node拷贝过去</span><br><span class="line">root@:/opt/node-v10.13.0-linux-x64/bin# cp ./node /usr/bin/node</span><br><span class="line"><span class="meta">#</span> 验证</span><br><span class="line">root@:# node -v</span><br><span class="line">v10.13.0</span><br></pre></td></tr></table></figure>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h1 id=&quot;搭建Hexo执行-hexo-命令报错-ERROR-Local-hexo-not-found-in-xxx-二种解决方案&quot;&gt;&lt;a href=&quot;#搭建Hexo执行-hexo-命令报错-ERROR-Local-hexo-not-found-in-xxx-二种解决方案&quot; 
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+</feed>
