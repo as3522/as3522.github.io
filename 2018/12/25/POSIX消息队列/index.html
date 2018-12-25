@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="as3522" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="POSIX消息队列原文地址 消息队列是Linux IPC中很常用的一种通信方式，它通常用来在不同进程间发送特定格式的消息数据。 消息队列和之前讨论过的管道和FIFO有很大的区别，主要有以下两点： 一个进程向消息队列写入消息之前，并不需要某个进程在该队列上等待该消息的到达，而管道和FIFO是相反的，进程向其中写消息时，管道和FIFO必需已经打开来读，那么内核会产生SIGPIPE信号(感谢shansh">
+<meta name="keywords" content="as3522">
+<meta property="og:type" content="article">
+<meta property="og:title" content="POSIX消息队列">
+<meta property="og:url" content="http://www.tangyilong.com/2018/12/25/POSIX消息队列/index.html">
+<meta property="og:site_name" content="as3522">
+<meta property="og:description" content="POSIX消息队列原文地址 消息队列是Linux IPC中很常用的一种通信方式，它通常用来在不同进程间发送特定格式的消息数据。 消息队列和之前讨论过的管道和FIFO有很大的区别，主要有以下两点： 一个进程向消息队列写入消息之前，并不需要某个进程在该队列上等待该消息的到达，而管道和FIFO是相反的，进程向其中写消息时，管道和FIFO必需已经打开来读，那么内核会产生SIGPIPE信号(感谢shansh">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://www.tangyilong.com/2018/12/25/POSIX消息队列/20130806231545312.jpg">
+<meta property="og:updated_time" content="2018-12-25T06:58:55.323Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="POSIX消息队列">
+<meta name="twitter:description" content="POSIX消息队列原文地址 消息队列是Linux IPC中很常用的一种通信方式，它通常用来在不同进程间发送特定格式的消息数据。 消息队列和之前讨论过的管道和FIFO有很大的区别，主要有以下两点： 一个进程向消息队列写入消息之前，并不需要某个进程在该队列上等待该消息的到达，而管道和FIFO是相反的，进程向其中写消息时，管道和FIFO必需已经打开来读，那么内核会产生SIGPIPE信号(感谢shansh">
+<meta name="twitter:image" content="http://www.tangyilong.com/2018/12/25/POSIX消息队列/20130806231545312.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.tangyilong.com/2018/12/25/POSIX消息队列/">
+
+
+
+
+
+  <title>POSIX消息队列 | as3522</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+
+   <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;"></canvas> 
+      <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+	     <script type="text/javascript" src="/js/src/fireworks.js"></script>
+
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">as3522</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.tangyilong.com/2018/12/25/POSIX消息队列/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="as3522">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="as3522">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">POSIX消息队列</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-25T14:51:03+08:00">
+                2018-12-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="POSIX消息队列"><a href="#POSIX消息队列" class="headerlink" title="POSIX消息队列"></a>POSIX消息队列</h1><p><a href="https://blog.csdn.net/anonymalias/article/details/9799645" target="_blank" rel="noopener">原文地址</a></p>
+<p>消息队列是Linux IPC中很常用的一种通信方式，它通常用来在不同进程间发送特定格式的消息数据。</p>
+<p>消息队列和之前讨论过的管道和FIFO有很大的区别，主要有以下两点：</p>
+<p>一个进程向消息队列写入消息之前，并不需要某个进程在该队列上等待该消息的到达，而管道和FIFO是相反的，进程向其中写消息时，管道和FIFO必需已经打开来读，那么内核会产生SIGPIPE信号(感谢shanshan_fangfang的指正)。<br> IPC的持续性不同。管道和FIFO是随进程的持续性，当管道和FIFO最后一次关闭发生时，仍在管道和FIFO中的数据会被丢弃。消息队列是随内核的持续性，即一个进程向消息队列写入消息后，然后终止，另外一个进程可以在以后某个时刻打开该队列读取消息。只要内核没有重新自举，消息队列没有被删除。<br>消息队列中的每条消息通常具有以下属性：</p>
+<p>一个表示优先级的整数；<br>消息的数据部分的长度；<br> 消息数据本身；<br>POSIX消息队列的一个可能的设计是一个如下图所示的消息链表，链表头部有消息队列的属性信息。  </p>
+<p><img src="/2018/12/25/POSIX消息队列/20130806231545312.jpg" alt="20130806231545312"></p>
+<h2 id="1-POSIX消息队列的创建和关闭"><a href="#1-POSIX消息队列的创建和关闭" class="headerlink" title="1 POSIX消息队列的创建和关闭"></a>1 POSIX消息队列的创建和关闭</h2><p>POSIX消息队列的创建，关闭和删除用到以下三个函数接口：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mqueue.h&gt;</span></span></span><br><span class="line"><span class="keyword">mqd_t</span> mq_open(<span class="keyword">const</span> <span class="keyword">char</span> *name, <span class="keyword">int</span> oflag, <span class="comment">/* mode_t mode, struct mq_attr *attr */</span>);</span><br><span class="line"><span class="comment">//成功返回消息队列描述符，失败返回-1</span></span><br><span class="line"><span class="keyword">mqd_t</span> mq_close(<span class="keyword">mqd_t</span> mqdes);</span><br><span class="line"><span class="keyword">mqd_t</span> mq_unlink(<span class="keyword">const</span> <span class="keyword">char</span> *name);</span><br><span class="line"><span class="comment">//成功返回0，失败返回-1</span></span><br></pre></td></tr></table></figure>
+<p>mq_open用于打开或创建一个消息队列。</p>
+<p><strong>name</strong>：表示消息队列的名字，它符合POSIX IPC的名字规则。</p>
+<p><strong>oflag</strong>：表示打开的方式，和open函数的类似。有必须的选项：O_RDONLY，O_WRONLY，O_RDWR，还有可选的选项：O_NONBLOCK，O_CREAT，O_EXCL。</p>
+<p><strong>mode</strong>：是一个可选参数，在oflag中含有O_CREAT标志且消息队列不存在时，才需要提供该参数。表示默认访问权限。可以参考open。</p>
+<p><strong>attr</strong>：也是一个可选参数，在oflag中含有O_CREAT标志且消息队列不存在时才需要。该参数用于给新队列设定某些属性，如果是空指针，那么就采用默认属性。</p>
+<p>mq_open返回值是mqd_t类型的值，被称为消息队列描述符。在Linux 2.6.18中该类型的定义为整型：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;bits/mqueue.h&gt;</span></span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">int</span> <span class="keyword">mqd_t</span>;</span><br></pre></td></tr></table></figure></p>
+<p>mq_close用于关闭一个消息队列，和文件的close类型，关闭后，消息队列并不从系统中删除。一个进程结束，会自动调用关闭打开着的消息队列。</p>
+<p>mq_unlink用于删除一个消息队列。消息队列创建后只有通过调用该函数或者是内核自举才能进行删除。每个消息队列都有一个保存当前打开着描述符数的引用计数器，和文件一样，因此本函数能够实现类似于unlink函数删除一个文件的机制。</p>
+<p>POSIX消息队列的名字==所创建的真正路径名和具体的系统实现有关==，关于具体POSIX IPC的名字规则可以参考《UNIX 网络编程 卷2：进程间通信》的P14。</p>
+<p>经过测试，在Linux 2.6.18中，所创建的POSIX消息队列不会在文件系统中创建真正的路径名。且POSIX的名字只能以一个’/’开头，名字中不能包含其他的’/’。</p>
+<h2 id="2-POSIX消息队列的属性"><a href="#2-POSIX消息队列的属性" class="headerlink" title="2 POSIX消息队列的属性"></a>2 POSIX消息队列的属性</h2><p>POSIX标准规定消息队列属性mq_attr必须要含有以下四个内容：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">long</span>    mq_flags <span class="comment">//消息队列的标志：0或O_NONBLOCK,用来表示是否阻塞 </span></span><br><span class="line"><span class="keyword">long</span>    mq_maxmsg  <span class="comment">//消息队列的最大消息数</span></span><br><span class="line"><span class="keyword">long</span>    mq_msgsize  <span class="comment">//消息队列中每个消息的最大字节数</span></span><br><span class="line"><span class="keyword">long</span>    mq_curmsgs  <span class="comment">//消息队列中当前的消息数目</span></span><br></pre></td></tr></table></figure>
+<p>在Linux 2.6.18中mq_attr结构的定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;bits/mqueue.h&gt;</span></span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">mq_attr</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="keyword">long</span> <span class="keyword">int</span> mq_flags;      <span class="comment">/* Message queue flags.  */</span></span><br><span class="line">  <span class="keyword">long</span> <span class="keyword">int</span> mq_maxmsg;   <span class="comment">/* Maximum number of messages.  */</span></span><br><span class="line">  <span class="keyword">long</span> <span class="keyword">int</span> mq_msgsize;   <span class="comment">/* Maximum message size.  */</span></span><br><span class="line">  <span class="keyword">long</span> <span class="keyword">int</span> mq_curmsgs;   <span class="comment">/* Number of messages currently queued.  */</span></span><br><span class="line">  <span class="keyword">long</span> <span class="keyword">int</span> __pad[<span class="number">4</span>];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>POSIX消息队列的属性设置和获取可以通过下面两个函数实现：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mqueue.h&gt;</span></span></span><br><span class="line"><span class="keyword">mqd_t</span> mq_getattr(<span class="keyword">mqd_t</span> mqdes, struct mq_attr *attr);</span><br><span class="line"><span class="keyword">mqd_t</span> mq_setattr(<span class="keyword">mqd_t</span> mqdes, struct mq_attr *newattr, struct mq_attr *oldattr);</span><br><span class="line">                               <span class="comment">//成功返回0，失败返回-1</span></span><br></pre></td></tr></table></figure>
+<p>mq_getattr用于获取当前消息队列的属性，mq_setattr用于设置当前消息队列的属性。其中mq_setattr中的oldattr用于保存修改前的消息队列的属性，可以为空。</p>
+<p>mq_setattr==可以设置的属性只有mq_flags==，用来设置或清除消息队列的非阻塞标志。newattr结构的其他属性被忽略。mq_maxmsg和mq_msgsize属性只能在创建消息队列时通过mq_open来设置。==mq_open只会设置该两个属性，忽略另外两个属性==。mq_curmsgs属性只能被获取而不能被设置。</p>
+<p>下面是测试代码：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;errno.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mqueue.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">mqd_t</span> mqID;</span><br><span class="line">    mqID = mq_open(<span class="string">"/anonymQueue"</span>, O_RDWR | O_CREAT, <span class="number">0666</span>, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (mqID &lt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;<span class="string">"open message queue error..."</span>&lt;&lt;strerror(errno)&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">     </span><br><span class="line">    mq_attr mqAttr;</span><br><span class="line">    <span class="keyword">if</span> (mq_getattr(mqID, &amp;mqAttr) &lt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;<span class="string">"get the message queue attribute error"</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">     </span><br><span class="line">    <span class="built_in">cout</span>&lt;&lt;<span class="string">"mq_flags:"</span>&lt;&lt;mqAttr.mq_flags&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    <span class="built_in">cout</span>&lt;&lt;<span class="string">"mq_maxmsg:"</span>&lt;&lt;mqAttr.mq_maxmsg&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    <span class="built_in">cout</span>&lt;&lt;<span class="string">"mq_msgsize:"</span>&lt;&lt;mqAttr.mq_msgsize&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    <span class="built_in">cout</span>&lt;&lt;<span class="string">"mq_curmsgs:"</span>&lt;&lt;mqAttr.mq_curmsgs&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在Linux 2.6.18中执行结果是：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mq_flags:0</span><br><span class="line">mq_maxmsg:10</span><br><span class="line">mq_msgsize:8192</span><br><span class="line">mq_curmsgs:0</span><br></pre></td></tr></table></figure></p>
+<h2 id="3-POSIX消息队列的使用"><a href="#3-POSIX消息队列的使用" class="headerlink" title="3 POSIX消息队列的使用"></a>3 POSIX消息队列的使用</h2><p>POSIX消息队列可以通过以下两个函数来进行发送和接收消息：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mqueue.h&gt;</span></span></span><br><span class="line"><span class="keyword">mqd_t</span> mq_send(<span class="keyword">mqd_t</span> mqdes, <span class="keyword">const</span> <span class="keyword">char</span> *msg_ptr,</span><br><span class="line">                      <span class="keyword">size_t</span> msg_len, <span class="keyword">unsigned</span> msg_prio);</span><br><span class="line">                     <span class="comment">//成功返回0，出错返回-1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">mqd_t</span> mq_receive(<span class="keyword">mqd_t</span> mqdes, <span class="keyword">char</span> *msg_ptr,</span><br><span class="line">                      <span class="keyword">size_t</span> msg_len, <span class="keyword">unsigned</span> *msg_prio);</span><br><span class="line">                     <span class="comment">//成功返回接收到消息的字节数，出错返回-1</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> __USE_XOPEN2K</span></span><br><span class="line"><span class="keyword">mqd_t</span> mq_timedsend(<span class="keyword">mqd_t</span> mqdes, <span class="keyword">const</span> <span class="keyword">char</span> *msg_ptr,</span><br><span class="line">                      <span class="keyword">size_t</span> msg_len, <span class="keyword">unsigned</span> msg_prio,</span><br><span class="line">                      <span class="keyword">const</span> struct timespec *abs_timeout);</span><br><span class="line"></span><br><span class="line"><span class="keyword">mqd_t</span> mq_timedreceive(<span class="keyword">mqd_t</span> mqdes, <span class="keyword">char</span> *msg_ptr,</span><br><span class="line">                      <span class="keyword">size_t</span> msg_len, <span class="keyword">unsigned</span> *msg_prio,</span><br><span class="line">                      <span class="keyword">const</span> struct timespec *abs_timeout);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure></p>
+<p>mq_send向消息队列中写入一条消息，mq_receive从消息队列中读取一条消息。</p>
+<p><em>mqdes</em>：消息队列描述符；</p>
+<p><em>msg_ptr</em>：指向消息体缓冲区的指针；</p>
+<p><em>msg_len</em>：消息体的长度，其中==mq_receive的该参数不能小于能写入队列中消息的最大大小，即一定要大于等于该队列的mq_attr结构中mq_msgsize的大小==。如果mq_receive中的msg_len小于该值，就会返回EMSGSIZE错误。POXIS消息队列发送的消息长度可以为0。</p>
+<p><em>msg_prio</em>：消息的优先级；它是一个小于MQ_PRIO_MAX的数，数值越大，优先级越高。POSIX消息队列在调用mq_receive时总是返回队列中最高优先级的最早消息。如果消息不需要设定优先级，那么可以在mq_send是置msg_prio为0，mq_receive的msg_prio置为NULL。</p>
+<p>还有两个XSI定义的扩展接口限时发送和接收消息的函数：mq_timedsend和mq_timedreceive函数。默认情况下mq_send和mq_receive是阻塞进行调用，可以通过mq_setattr来设置为O_NONBLOCK。</p>
+<p>下面是消息队列使用的测试代码：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;errno.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mqueue.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">mqd_t</span> mqID;</span><br><span class="line">    mqID = mq_open(<span class="string">"/anonymQueue"</span>, O_RDWR | O_CREAT | O_EXCL, <span class="number">0666</span>, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (mqID &lt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (errno == EEXIST)</span><br><span class="line">        &#123;</span><br><span class="line">            mq_unlink(<span class="string">"/anonymQueue"</span>);</span><br><span class="line">            mqID = mq_open(<span class="string">"/anonymQueue"</span>, O_RDWR | O_CREAT, <span class="number">0666</span>, <span class="literal">NULL</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">cout</span>&lt;&lt;<span class="string">"open message queue error..."</span>&lt;&lt;strerror(errno)&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">     </span><br><span class="line">    <span class="keyword">if</span> (fork() == <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        mq_attr mqAttr;</span><br><span class="line">        mq_getattr(mqID, &amp;mqAttr);</span><br><span class="line">     </span><br><span class="line">        <span class="keyword">char</span> *buf = <span class="keyword">new</span> <span class="keyword">char</span>[mqAttr.mq_msgsize];</span><br><span class="line">     </span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= <span class="number">5</span>; ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (mq_receive(mqID, buf, mqAttr.mq_msgsize, <span class="literal">NULL</span>) &lt; <span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="built_in">cout</span>&lt;&lt;<span class="string">"receive message  failed. "</span>;</span><br><span class="line">                <span class="built_in">cout</span>&lt;&lt;<span class="string">"error info:"</span>&lt;&lt;strerror(errno)&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line">     </span><br><span class="line">            <span class="built_in">cout</span>&lt;&lt;<span class="string">"receive message "</span>&lt;&lt;i&lt;&lt;<span class="string">": "</span>&lt;&lt;buf&lt;&lt;<span class="built_in">endl</span>;   </span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">     </span><br><span class="line">    <span class="keyword">char</span> msg[] = <span class="string">"yuki"</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= <span class="number">5</span>; ++i)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (mq_send(mqID, msg, <span class="keyword">sizeof</span>(msg), i) &lt; <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">cout</span>&lt;&lt;<span class="string">"send message "</span>&lt;&lt;i&lt;&lt;<span class="string">" failed. "</span>;</span><br><span class="line">            <span class="built_in">cout</span>&lt;&lt;<span class="string">"error info:"</span>&lt;&lt;strerror(errno)&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;<span class="string">"send message "</span>&lt;&lt;i&lt;&lt;<span class="string">" success. "</span>&lt;&lt;<span class="built_in">endl</span>;   </span><br><span class="line">     </span><br><span class="line">        sleep(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在Linux 2.6.18下的执行结构如下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">send message 1 success. </span><br><span class="line">receive message 1: yuki</span><br><span class="line">send message 2 success. </span><br><span class="line">receive message 2: yuki</span><br><span class="line">send message 3 success. </span><br><span class="line">receive message 3: yuki</span><br><span class="line">send message 4 success. </span><br><span class="line">receive message 4: yuki</span><br><span class="line">send message 5 success. </span><br><span class="line">receive message 5: yuki</span><br></pre></td></tr></table></figure></p>
+<h2 id="4-POSIX消息队列的限制"><a href="#4-POSIX消息队列的限制" class="headerlink" title="4 POSIX消息队列的限制"></a>4 POSIX消息队列的限制</h2><p>POSIX消息队列本身的限制就是mq_attr中的mq_maxmsg和mq_msgsize，分别用于限定消息队列中的最大消息数和每个消息的最大字节数。在前面已经说过了，这两个参数可以在调用mq_open创建一个消息队列的时候设定。当这个设定是受到系统内核限制的。</p>
+<p>下面是在Linux 2.6.18下shell对启动进程的POSIX消息队列大小的限制：<br><figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ulimit -a |grep message</span></span><br><span class="line">POSIX <span class="keyword">message</span> queues     (bytes, -q) <span class="number">819200</span></span><br></pre></td></tr></table></figure></p>
+<p>限制大小为800KB，==该大小是整个消息队列的大小，不仅仅是最大消息数*消息的最大大小；还包括消息队列的额外开销==。前面我们知道Linux 2.6.18下POSIX消息队列默认的最大消息数和消息的最大大小分别为：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">mq_maxmsg</span> = <span class="number">10</span></span><br><span class="line"><span class="attr">mq_msgsize</span> = <span class="number">8192</span></span><br></pre></td></tr></table></figure>
+<p>为了说明上面的限制大小包括消息队列的额外开销，下面是测试代码：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;errno.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mqueue.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">mqd_t</span> mqID;</span><br><span class="line">    mq_attr attr;</span><br><span class="line">    attr.mq_maxmsg = atoi(argv[<span class="number">1</span>]);</span><br><span class="line">    attr.mq_msgsize = atoi(argv[<span class="number">2</span>]);</span><br><span class="line"></span><br><span class="line">    mqID = mq_open(<span class="string">"/anonymQueue"</span>, O_RDWR | O_CREAT | O_EXCL, <span class="number">0666</span>, &amp;attr);</span><br><span class="line">     </span><br><span class="line">    <span class="keyword">if</span> (mqID &lt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (errno == EEXIST)</span><br><span class="line">        &#123;</span><br><span class="line">            mq_unlink(<span class="string">"/anonymQueue"</span>);</span><br><span class="line">            mqID = mq_open(<span class="string">"/anonymQueue"</span>, O_RDWR | O_CREAT, <span class="number">0666</span>, &amp;attr);</span><br><span class="line">     </span><br><span class="line">            <span class="keyword">if</span>(mqID &lt; <span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="built_in">cout</span>&lt;&lt;<span class="string">"open message queue error..."</span>&lt;&lt;strerror(errno)&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">                <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">cout</span>&lt;&lt;<span class="string">"open message queue error..."</span>&lt;&lt;strerror(errno)&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">     </span><br><span class="line">    mq_attr mqAttr;</span><br><span class="line">    <span class="keyword">if</span> (mq_getattr(mqID, &amp;mqAttr) &lt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;<span class="string">"get the message queue attribute error"</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">     </span><br><span class="line">    <span class="built_in">cout</span>&lt;&lt;<span class="string">"mq_flags:"</span>&lt;&lt;mqAttr.mq_flags&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    <span class="built_in">cout</span>&lt;&lt;<span class="string">"mq_maxmsg:"</span>&lt;&lt;mqAttr.mq_maxmsg&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    <span class="built_in">cout</span>&lt;&lt;<span class="string">"mq_msgsize:"</span>&lt;&lt;mqAttr.mq_msgsize&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    <span class="built_in">cout</span>&lt;&lt;<span class="string">"mq_curmsgs:"</span>&lt;&lt;mqAttr.mq_curmsgs&lt;&lt;<span class="built_in">endl</span>; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>下面进行创建消息队列时设置最大消息数和消息的最大大小进行测试：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[root@idcserver program]<span class="comment"># g++ -g test.cpp -lrt</span></span><br><span class="line">[root@idcserver program]<span class="comment"># ./a.out 10 81920</span></span><br><span class="line">open message queue error...Cannot allocate memory</span><br><span class="line">[root@idcserver program]<span class="comment"># ./a.out 10 80000</span></span><br><span class="line">open message queue error...Cannot allocate memory</span><br><span class="line">[root@idcserver program]<span class="comment"># ./a.out 10 70000</span></span><br><span class="line">open message queue error...Cannot allocate memory</span><br><span class="line">[root@idcserver program]<span class="comment"># ./a.out 10 60000</span></span><br><span class="line">mq_flags:0</span><br><span class="line">mq_maxmsg:10</span><br><span class="line">mq_msgsize:60000</span><br><span class="line">mq_curmsgs:0</span><br></pre></td></tr></table></figure></p>
+<p>从上面可以看出消息队列真正存放消息数据的大小是没有819200B的。可以通过修改该限制参数，来改变消息队列的所能容纳消息的数量。可以通过下面方式来修改限制，但这会在shell启动进程结束后失效，可以将设置写入开机启动的脚本中执行，例如.bashrc，rc.local。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@idcserver ~]# ulimit -q 1024000000</span><br><span class="line">[root@idcserver ~]# ulimit -a |grep message</span><br><span class="line">POSIX message queues     (bytes, -q) 1024000000</span><br></pre></td></tr></table></figure>
+<p>下面再次测试可以设置的消息队列的属性。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">[root@idcserver program]<span class="comment"># ./a.out 10 81920</span></span><br><span class="line">mq_flags:0</span><br><span class="line">mq_maxmsg:10</span><br><span class="line">mq_msgsize:81920</span><br><span class="line">mq_curmsgs:0</span><br><span class="line">[root@idcserver program]<span class="comment"># ./a.out 10 819200</span></span><br><span class="line">mq_flags:0</span><br><span class="line">mq_maxmsg:10</span><br><span class="line">mq_msgsize:819200</span><br><span class="line">mq_curmsgs:0</span><br><span class="line">[root@idcserver program]<span class="comment"># ./a.out 1000 8192  </span></span><br><span class="line">mq_flags:0</span><br><span class="line">mq_maxmsg:1000</span><br><span class="line">mq_msgsize:8192</span><br><span class="line">mq_curmsgs:0</span><br></pre></td></tr></table></figure></p>
+<p>POSIX消息队列在实现上还有另外两个限制：</p>
+<p><strong>MQ_OPEN_MAX</strong>：一个进程能同时打开的消息队列的最大数目，POSIX要求至少为8；</p>
+<p><strong>MQ_PRIO_MAX</strong>：消息的最大优先级，POSIX要求至少为32；</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/12/25/GCC编译过程和动态静态库/" rel="next" title="GCC编译过程和动态静态库">
+                <i class="fa fa-chevron-left"></i> GCC编译过程和动态静态库
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/12/25/Socket编程详解/" rel="prev" title="Socket编程详解">
+                Socket编程详解 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.gif" alt="as3522">
+            
+              <p class="site-author-name" itemprop="name">as3522</p>
+              <p class="site-description motion-element" itemprop="description">personal blog</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#POSIX消息队列"><span class="nav-number">1.</span> <span class="nav-text">POSIX消息队列</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-POSIX消息队列的创建和关闭"><span class="nav-number">1.1.</span> <span class="nav-text">1 POSIX消息队列的创建和关闭</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-POSIX消息队列的属性"><span class="nav-number">1.2.</span> <span class="nav-text">2 POSIX消息队列的属性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-POSIX消息队列的使用"><span class="nav-number">1.3.</span> <span class="nav-text">3 POSIX消息队列的使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-POSIX消息队列的限制"><span class="nav-number">1.4.</span> <span class="nav-text">4 POSIX消息队列的限制</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">as3522</span>
+
+  
+</div>
+
+
+  <div class="powered-by">个人网站 <a class="theme-link" target="_blank" href="http://www.as3522.com">as3522</a> </div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">By-as3522 </div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
