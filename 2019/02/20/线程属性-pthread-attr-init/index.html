@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="as3522" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="我们一般创建线程是这样 pthread_t tid; pthread_create(&amp;amp;tid, NULL, func, NULL); 第二个参数是线程属性设置，一般设置为了NULL，但是可以通过系统API进一步设置第二个参数，细化创建的线程的属性。 大致步骤为： pthread_attr_t attr; pthread_attr_init(&amp;amp;attr); pthread_attr_">
+<meta name="keywords" content="as3522">
+<meta property="og:type" content="article">
+<meta property="og:title" content="线程属性-pthread_attr_init">
+<meta property="og:url" content="http://www.tangyilong.com/2019/02/20/线程属性-pthread-attr-init/index.html">
+<meta property="og:site_name" content="as3522">
+<meta property="og:description" content="我们一般创建线程是这样 pthread_t tid; pthread_create(&amp;amp;tid, NULL, func, NULL); 第二个参数是线程属性设置，一般设置为了NULL，但是可以通过系统API进一步设置第二个参数，细化创建的线程的属性。 大致步骤为： pthread_attr_t attr; pthread_attr_init(&amp;amp;attr); pthread_attr_">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-02-20T11:30:13.598Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="线程属性-pthread_attr_init">
+<meta name="twitter:description" content="我们一般创建线程是这样 pthread_t tid; pthread_create(&amp;amp;tid, NULL, func, NULL); 第二个参数是线程属性设置，一般设置为了NULL，但是可以通过系统API进一步设置第二个参数，细化创建的线程的属性。 大致步骤为： pthread_attr_t attr; pthread_attr_init(&amp;amp;attr); pthread_attr_">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.tangyilong.com/2019/02/20/线程属性-pthread-attr-init/">
+
+
+
+
+
+  <title>线程属性-pthread_attr_init | as3522</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+
+   <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;"></canvas> 
+      <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+	     <script type="text/javascript" src="/js/src/fireworks.js"></script>
+
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">as3522</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.tangyilong.com/2019/02/20/线程属性-pthread-attr-init/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="as3522">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="as3522">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">线程属性-pthread_attr_init</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-20T19:29:40+08:00">
+                2019-02-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>我们一般创建线程是这样</p>
+<p>pthread_t tid;</p>
+<p>pthread_create(&amp;tid, NULL, func, NULL);</p>
+<p>第二个参数是线程属性设置，一般设置为了NULL，但是可以通过系统API进一步设置第二个参数，细化创建的线程的属性。</p>
+<p>大致步骤为：</p>
+<p>pthread_attr_t attr;</p>
+<p>pthread_attr_init(&amp;attr);</p>
+<p>pthread_attr_setXXX(&amp;attr, 目标值);</p>
+<p>……//创建线程，其他代码</p>
+<h2 id="线程属性"><a href="#线程属性" class="headerlink" title="线程属性"></a>线程属性</h2><p><strong>1．线程属性</strong></p>
+<p>​       线程具有属性，用<em>pthread_attr_t</em>表示，在对该结构进行处理之前必须进行初始化，在使用后需要对其去除初始化。我们用<em>pthread_attr_init</em>函数对其初始化，用<em>pthread_attr_destroy</em>对其去除初始化。 </p>
+<p><em>1</em>．</p>
+<table>
+<thead>
+<tr>
+<th>名称<em>:</em>：</th>
+<th><em>pthread_attr_init/pthread_attr_destroy</em></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>功能：</td>
+<td>对线程属性初始化<em>/</em>去除初始化</td>
+</tr>
+<tr>
+<td>头文件：</td>
+<td><em>#include&lt;pthread.h&gt;</em></td>
+</tr>
+<tr>
+<td>函数原形：</td>
+<td><em>int pthread_attr_init(pthread_attr_t\</em>attr);<em><br></em>int pthread_attr_destroy(pthread_attr_t*attr);*</td>
+</tr>
+<tr>
+<td>参数：</td>
+<td><em>Attr</em>   线程属性变量</td>
+</tr>
+<tr>
+<td>返回值：</td>
+<td>若成功返回<em>0</em>，若失败返回<em>-1</em>。</td>
+</tr>
+</tbody>
+</table>
+<p>调用<em>pthread_attr_init</em>之后，<em>pthread_t</em>结构所包含的内容就是操作系统实现支持的线程所有属性的默认值。</p>
+<p>   如果要去除对<em>pthread_attr_t</em>结构的初始化，可以调用<em>pthread_attr_destroy</em>函数。如果<em>pthread_attr_init</em>实现时为属性对象分配了动态内存空间，<em>pthread_attr_destroy</em>还会用无效的值初始化属性对象，因此如果经<em>pthread_attr_destroy</em>去除初始化之后的<em>pthread_attr_t</em>结构被<em>pthread_create</em>函数调用，将会导致其返回错误。</p>
+<p>线程属性结构如下：</p>
+<p><em>typedef struct</em></p>
+<p><em>{</em></p>
+<p>​       <em>int                               detachstate;</em>   线程的分离状态</p>
+<p>​       <em>int                               schedpolicy;</em>  线程调度策略</p>
+<p>​       <em>structsched_param              schedparam;</em>  线程的调度参数</p>
+<p>​       <em>int                               inheritsched;</em>  线程的继承性</p>
+<p>​       <em>int                                scope;</em>       线程的作用域</p>
+<p>​       <em>size_t                           guardsize;</em>   线程栈末尾的警戒缓冲区大小</p>
+<p>​       <em>int                                stackaddr_set;</em></p>
+<p>​       <em>void\</em>                          stackaddr;*   线程栈的位置</p>
+<p>​       <em>size_t                           stacksize;</em>    线程栈的大小</p>
+<p><em>}pthread_attr_t;</em></p>
+<p>每个个属性都对应一些函数对其查看或修改。下面我们分别介绍。</p>
+<h3 id="二、线程的分离状态"><a href="#二、线程的分离状态" class="headerlink" title="二、线程的分离状态"></a><strong>二、线程的分离状态</strong></h3><p>​    线程的分离状态决定一个线程以什么样的方式来终止自己。在默认情况下线程是非分离状态的，这种情况下，原有的线程等待创建的线程结束。只有当pthread_join（）函数返回时，创建的线程才算终止，才能释放自己占用的系统资源。</p>
+<p>而分离线程不是这样子的，它没有被其他的线程所等待，自己运行结束了，线程也就终止了，马上释放系统资源。程序员应该根据自己的需要，选择适当的分离状态。所以如果我们在创建线程时就知道不需要了解线程的终止状态，则可以<em>pthread_attr_t</em>结构中的<em>detachstate</em>线程属性，让线程以分离状态启动。</p>
+<p><em>2</em>．</p>
+<table>
+<thead>
+<tr>
+<th>名称<em>:</em>：</th>
+<th><em>pthread_attr_getdetachstate/pthread_attr_setdetachstate</em></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>功能：</td>
+<td>获取<em>/</em>修改线程的分离状态属性</td>
+</tr>
+<tr>
+<td>头文件：</td>
+<td><em>#include&lt;pthread.h&gt;</em></td>
+</tr>
+<tr>
+<td>函数原形：</td>
+<td><em>int pthread_attr_getdetachstate(const pthread_attr_t \</em>attr,int *detachstate);<em><br></em>int pthread_attr_setdetachstate(pthread_attr_t *attr,intdetachstate);*</td>
+</tr>
+<tr>
+<td>参数：</td>
+<td><em>Attr</em>   线程属性变量<em>Detachstate</em>  线程的分离状态属性</td>
+</tr>
+<tr>
+<td>返回值：</td>
+<td>若成功返回<em>0</em>，若失败返回<em>-1</em>。</td>
+</tr>
+</tbody>
+</table>
+<p>可以使用<em>pthread_attr_setdetachstate</em>函数把线程属性<em>detachstate</em>设置为下面的两个合法值之一：设置为<em>PTHREAD_CREATE_DETACHED,</em>以分离状态启动线程；或者设置为<em>PTHREAD_CREATE_JOINABLE,</em>正常启动线程。可以使用<em>pthread_attr_getdetachstate</em>函数获取当前的<em>datachstate</em>线程属性。</p>
+<p>以分离状态创建线程</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;pthread.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> *<span class="title">child_thread</span><span class="params">(<span class="keyword">void</span> *arg)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"><span class="built_in">printf</span>(“child thread run!\n”);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc,<span class="keyword">char</span> *argv[ ])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">      pthread_ttid;</span><br><span class="line">      pthread_attr_tattr;</span><br><span class="line">      pthread_attr_init(&amp;attr);</span><br><span class="line">      pthread_attr_setdetachstate(&amp;attr,PTHREAD_CREATE_DETACHED);<span class="comment">//分离</span></span><br><span class="line">      pthread_create(&amp;tid,&amp;attr,fn,arg);</span><br><span class="line">      pthread_attr_destroy(&amp;attr);</span><br><span class="line">      sleep(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="三、线程的继承性"><a href="#三、线程的继承性" class="headerlink" title="三、线程的继承性"></a><strong>三、线程的继承性</strong></h3><p>​    函数<em>pthread_attr_setinheritsched</em>和<em>pthread_attr_getinheritsched</em>分别用来设置和得到线程的继承性，这两个函数的定义如下： </p>
+<p><em>3.</em></p>
+<table>
+<thead>
+<tr>
+<th>名称<em>:</em>：</th>
+<th><em>pthread_attr_getinheritsched**pthread_attr_setinheritsched</em></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>功能：</td>
+<td>获得<em>/</em>设置线程的继承性</td>
+</tr>
+<tr>
+<td>头文件：</td>
+<td><em>#include&lt;pthread.h&gt;</em></td>
+</tr>
+<tr>
+<td>函数原形：</td>
+<td><em>int pthread_attr_getinheritsched(const pthread_attr_t\</em>attr,int *inheritsched);<em><br></em>int pthread_attr_setinheritsched(pthread_attr_t *attr,intinheritsched);*</td>
+</tr>
+<tr>
+<td>参数：</td>
+<td><em>attr</em>            线程属性变量<em>inheritsched</em>     线程的继承性</td>
+</tr>
+<tr>
+<td>返回值：</td>
+<td>若成功返回<em>0</em>，若失败返回<em>-1</em>。</td>
+</tr>
+</tbody>
+</table>
+<p> 这两个函数具有两个参数，第<em>1</em>个是指向属性对象的指针，第<em>2</em>个是继承性或指向继承性的指针。继承性决定调度的参数是从创建的进程中继承还是使用在<em>schedpolicy</em>和<em>schedparam</em>属性中显式设置的调度信息。<em>Pthreads</em>不为<em>inheritsched</em>指定默认值，因此如果你关心线程的调度策略和参数，必须先设置该属性。</p>
+<p>​    继承性的可能值是<em>PTHREAD_INHERIT_SCHED</em>（表示新现成将继承创建线程的调度策略和参数）和<em>PTHREAD_EXPLICIT_SCHED</em>（表示使用在<em>schedpolicy</em>和<em>schedparam</em>属性中显式设置的调度策略和参数）。</p>
+<p>​    如果你需要显式的设置一个线程的调度策略或参数，那么你必须在设置之前将<em>inheritsched</em>属性设置为<em>PTHREAD_EXPLICIT_SCHED.</em></p>
+<p>​    下面我来讲进程的调度策略和调度参数。我会结合下面的函数给出本函数的程序例子。</p>
+<h3 id="四、线程的调度策略"><a href="#四、线程的调度策略" class="headerlink" title="四、线程的调度策略"></a><strong>四、线程的调度策略</strong></h3><p>   函数<em>pthread_attr_setschedpolicy</em>和<em>pthread_attr_getschedpolicy</em>分别用来设置和得到线程的调度策略。</p>
+<p><em>4.</em></p>
+<table>
+<thead>
+<tr>
+<th>名称<em>:</em>：</th>
+<th><em>pthread_attr_getschedpolicy**pthread_attr_setschedpolicy</em></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>功能：</td>
+<td>获得<em>/</em>设置线程的调度策略</td>
+</tr>
+<tr>
+<td>头文件：</td>
+<td><em>#include&lt;pthread.h&gt;</em></td>
+</tr>
+<tr>
+<td>函数原形：</td>
+<td><em>int pthread_attr_getschedpolicy(const pthread_attr_t\</em>attr,int *policy);<em><br></em>int pthread_attr_setschedpolicy(pthread_attr_t *attr,intpolicy);*</td>
+</tr>
+<tr>
+<td>参数：</td>
+<td><em>attr</em>           线程属性变量<em>policy</em>         调度策略</td>
+</tr>
+<tr>
+<td>返回值：</td>
+<td>若成功返回<em>0</em>，若失败返回<em>-1</em>。</td>
+</tr>
+</tbody>
+</table>
+<p>这两个函数具有两个参数，第<em>1</em>个参数是指向属性对象的指针，第<em>2</em>个参数是调度策略或指向调度策略的指针。调度策略可能的值是先进先出（<em>SCHED_FIFO</em>）、轮转法（<em>SCHED_RR</em>）<em>,</em>或其它（<em>SCHED_OTHER</em>）。</p>
+<p>​    <em>SCHED_FIFO</em>策略允许一个线程运行直到有更高优先级的线程准备好，或者直到它自愿阻塞自己。在<em>SCHED_FIFO</em>调度策略下，当有一个线程准备好时，除非有平等或更高优先级的线程已经在运行，否则它会很快开始执行。</p>
+<p>   <em>SCHED_RR(</em>轮循<em>)</em>策略是基本相同的，不同之处在于：如果有一个<em>SCHED_RR</em></p>
+<p>策略的线程执行了超过一个固定的时期<em>(</em>时间片间隔<em>)</em>没有阻塞，而另外的<em>SCHED_RR</em>或<em>SCHBD_FIPO</em>策略的相同优先级的线程准备好时，运行的线程将被抢占以便准备好的线程可以执行。</p>
+<p>​    当有<em>SCHED_FIFO</em>或<em>SCHED_RR</em>策赂的线程在一个条件变量上等持或等持加锁同一个互斥量时，它们将以优先级顺序被唤醒。即，如果一个低优先级的<em>SCHED_FIFO</em>线程和一个高优先织的<em>SCHED_FIFO</em>线程都在等待锁相同的互斥且，则当互斥量被解锁时，高优先级线程将总是被首先解除阻塞。 </p>
+<h3 id="五、线程的调度参数（优先级）"><a href="#五、线程的调度参数（优先级）" class="headerlink" title="五、线程的调度参数（优先级）"></a><strong>五、线程的调度参数（优先级）</strong></h3><p>​    函数<em>pthread_attr_getschedparam</em> 和<em>pthread_attr_setschedparam</em>分别用来设置和得到线程的调度参数。 </p>
+<p><em>5.</em></p>
+<table>
+<thead>
+<tr>
+<th>名称<em>:</em>：</th>
+<th><em>pthread_attr_getschedparam**pthread_attr_setschedparam</em></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>功能：</td>
+<td>获得<em>/</em>设置线程的调度参数</td>
+</tr>
+<tr>
+<td>头文件：</td>
+<td><em>#include&lt;pthread.h&gt;</em></td>
+</tr>
+<tr>
+<td>函数原形：</td>
+<td><em>int pthread_attr_getschedparam(const pthread_attr_t\</em>attr,struct sched_param *param);<em><br></em>int pthread_attr_setschedparam(pthread_attr_t *attr,conststruct sched_param *param);*</td>
+</tr>
+<tr>
+<td>参数：</td>
+<td><em>attr</em>           线程属性变量<em>param          sched_param</em>结构</td>
+</tr>
+<tr>
+<td>返回值：</td>
+<td>若成功返回<em>0</em>，若失败返回<em>-1</em>。</td>
+</tr>
+</tbody>
+</table>
+<p>这两个函数具有两个参数，第<em>1</em>个参数是指向属性对象的指针，第<em>2</em>个参数是<em>sched_param</em>结构或指向该结构的指针。结构<em>sched_param</em>在文件<em>/usr/include/bits/sched.h</em>中定义如下：​     </p>
+<p><em>struct sched_param</em></p>
+<p><em>{</em></p>
+<p>​       <em>intsched_priority;</em></p>
+<p><em>};</em></p>
+<p>结构<em>sched_param</em>的子成员<em>sched_priority</em>控制一个优先权值，大的优先权值对应高的优先权。系统支持的最大和最小优先权值可以用<em>sched_get_priority_max</em>函数和<em>sched_get_priority_min</em>函数分别得到。</p>
+<p>注意：如果不是编写实时程序，不建议修改线程的优先级。因为，调度策略是一件非常复杂的事情，如果不正确使用会导致程序错误，从而导致死锁等问题。如：在多线程应用程序中为线程设置不同的优先级别，有可能因为共享资源而导致优先级倒置。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sched_param</span>	<span class="title">params</span>;</span></span><br><span class="line"><span class="comment">/* first get the scheduling parameter, then set the new priority */</span></span><br><span class="line"><span class="comment">//设置线程的优先级</span></span><br><span class="line">rval = pthread_attr_getschedparam(attr, &amp;params);</span><br><span class="line"><span class="keyword">if</span> (rval != <span class="number">0</span>)</span><br><span class="line">&#123;</span><br><span class="line">	pthread_attr_destroy(attr);</span><br><span class="line">	<span class="keyword">return</span> rval;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">rval = pthreadGetPriorityScope(&amp;minPriority, &amp;maxPriority);</span><br><span class="line"><span class="keyword">if</span> (rval != <span class="number">0</span>)</span><br><span class="line">&#123;</span><br><span class="line">	pthread_attr_destroy(attr);</span><br><span class="line">	<span class="keyword">return</span> rval;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (priority &lt; minPriority)</span><br><span class="line">&#123;</span><br><span class="line">	priority = minPriority;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span> <span class="keyword">if</span> (priority &gt; maxPriority)</span><br><span class="line">&#123;</span><br><span class="line">	priority = maxPriority;</span><br><span class="line">&#125;</span><br><span class="line">params.sched_priority = priority;</span><br><span class="line">rval = pthread_attr_setschedparam(attr, &amp;params);</span><br></pre></td></tr></table></figure>
+<h3 id="六、线程的竞争范围"><a href="#六、线程的竞争范围" class="headerlink" title="六、线程的竞争范围"></a>六、线程的竞争范围</h3><p>int pthread_attr_getscope(const pthread_attr_t *restrict attr,</p>
+<p>int *restrict contentionscope);</p>
+<p>int pthread_attr_setscope(pthread_attr_t *attr, int contentionscope);</p>
+<p>定义创建的线程的竞争范围为PTHREAD_SCOPE_SYSTEM、PTHREAD_SCOPE_PROCESS。</p>
+<p>Linux Threads只实现了PTHREAD_SCOPE_SYSTEM，这意味着，它将和机器上运行的所有进程竞争CPU时间。</p>
+<p>标准指定的另外一个值，PTHREAD_SCOPE_PROCESS，表示竞争只存在于运行中的进程的线程之间：即，线程的优先级是相对于其它进程中的线程的优先级的，而不必考虑进程的优先级如何。LinuxThread不支持PTHREAD_SCOPE_PROCESS。</p>
+<p>若成功返回0，若失败返回-1。</p>
+<h3 id="七、线程的栈的地址和大小"><a href="#七、线程的栈的地址和大小" class="headerlink" title="七、线程的栈的地址和大小"></a>七、线程的栈的地址和大小</h3><p>(1)</p>
+<p>int pthread_attr_getstack(pthread_attr_t <em>attr,void **stackaddr,size_t</em>stacksize);</p>
+<p>int pthread_attr_setstack(pthread_attr_t <em>attr, void </em>stackaddr,size_t stacksize);</p>
+<p>设置线程栈的起始地址和栈大小。默认起始地址0，大小0x800000（8M，我的机子……）。</p>
+<p>PS:使用get时往往显示的是addr = 0，size = 0，这可能是系统的BUG，size应给为8M而不是0。</p>
+<p>(2)</p>
+<p>上面的2个函数可以细化成4个：</p>
+<p>int pthread_attr_setstackaddr(pthread_attr_t <em>attr, void </em>stackaddr);</p>
+<p>int pthread_attr_getstackaddr(pthread_attr_t *attr, void**stackaddr);</p>
+<p>int pthread_attr_setstacksize(pthread_attr_t *attr, size_tstacksize);</p>
+<p>int pthread_attr_getstacksize(pthread_attr_t <em>attr, size_t</em>stacksize);</p>
+<p>这里get得到的size为8M，所以pthread_attr_getstack获得的size大小是不能说明栈的大小的。</p>
+<h3 id="八、栈溢出保护区大小"><a href="#八、栈溢出保护区大小" class="headerlink" title="八、栈溢出保护区大小"></a>八、栈溢出保护区大小</h3><p>intpthread_attr_setguardsize(pthread_attr_t *attr, size_t guardsize);</p>
+<p>intpthread_attr_getguardsize(pthread_attr_t <em>attr, size_t </em>guardsize);</p>
+<p>设置线程的栈溢出保护区大小，默认4096B，即4K。</p>
+<h3 id="九、设置-获取线程属性对象里CPU-姻亲属性"><a href="#九、设置-获取线程属性对象里CPU-姻亲属性" class="headerlink" title="九、设置/获取线程属性对象里CPU 姻亲属性"></a>九、设置/获取线程属性对象里CPU 姻亲属性</h3><p>int pthread_attr_setaffinity_np(pthread_attr_t *attr,size_tcpusetsize,</p>
+<p>const cpu_set_t *cpuset);</p>
+<p>int pthread_attr_getaffinity_np(pthread_attr_t *attr, size_tcpusetsize,</p>
+<p>cpu_set_t *cpuset);</p>
+<p>函数把 attr 引用的线程属性对象中的 CPU 姻亲掩码设置为cpuset 指定的值。这个属性决定了使用线程属性对象 attr 创建的线程的 CPU 姻亲掩码。</p>
+<h3 id="十、获取实时优先级的最大最小值"><a href="#十、获取实时优先级的最大最小值" class="headerlink" title="十、获取实时优先级的最大最小值"></a>十、获取实时优先级的最大最小值</h3><h4 id="Synopsis"><a href="#Synopsis" class="headerlink" title="Synopsis"></a>Synopsis</h4><p><strong>#include &lt;sched.h&gt;</strong></p>
+<p>int sched_get_priority_max(int <em>policy**</em>);<strong>int sched_get_priority_min(int <em>policy</em></strong>);** </p>
+<h4 id="Description"><a href="#Description" class="headerlink" title="Description"></a>Description</h4><p>The <em>sched_get_priority_max</em>() and <em>sched_get_priority_min</em>() functions shall return the appropriate maximum or minimum, respectively, for the scheduling policy specified by<em>policy</em>.</p>
+<p>The value of <em>policy</em> shall be one of the scheduling policy values defined in <em>&lt;sched.h&gt;</em>.</p>
+<h4 id="Return-Value"><a href="#Return-Value" class="headerlink" title="Return Value"></a>Return Value</h4><p>If successful, the <em>sched_get_priority_max</em>() and <em>sched_get_priority_min</em>() functions shall return the appropriate maximum or minimum values, respectively. If unsuccessful, they shall return a value of -1 and set <em>errno</em> to indicate the error.</p>
+<h4 id="Errors"><a href="#Errors" class="headerlink" title="Errors"></a>Errors</h4><p>The <em>sched_get_priority_max</em>() and <em>sched_get_priority_min</em>() functions shall fail if:</p>
+<ul>
+<li><p><strong>EINVAL</strong></p>
+<p>The value of the <em>policy</em> parameter does not represent a defined scheduling policy.</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Function: setPthreadAttr</span></span><br><span class="line"><span class="comment"> * Description: set the pthread's attribute: priority and the stack size in details</span></span><br><span class="line"><span class="comment"> * Input:	priority - [minPriority, maxPriority] </span></span><br><span class="line"><span class="comment"> *			stacksize - the pthread's stack size</span></span><br><span class="line"><span class="comment"> * Output:  attr - the pthread's attribute</span></span><br><span class="line"><span class="comment"> * Return:  0 if successful, otherwise return -1</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">setPthreadAttr</span><span class="params">(<span class="keyword">pthread_attr_t</span> *attr, <span class="keyword">int</span> priority, <span class="keyword">size_t</span>* stacksize)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> rval;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">sched_param</span>	<span class="title">params</span>;</span></span><br><span class="line">	<span class="keyword">int</span> maxPriority, minPriority;</span><br><span class="line"></span><br><span class="line">	rval = pthread_attr_init(attr);</span><br><span class="line">	<span class="keyword">if</span> (rval != <span class="number">0</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">return</span> rval;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* normally, need not to set */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> 0 </span></span><br><span class="line">	rval = pthread_attr_setinheritsched(attr, PTHREAD_EXPLICIT_SCHED);</span><br><span class="line">	<span class="keyword">if</span> (rval != <span class="number">0</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		pthread_attr_destroy(attr);</span><br><span class="line">		<span class="keyword">return</span> rval;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	rval = pthread_attr_setscope(attr, PTHREAD_SCOPE_SYSTEM);</span><br><span class="line">	<span class="keyword">if</span> (rval != <span class="number">0</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span> (rval == ENOTSUP)</span><br><span class="line">		&#123;</span><br><span class="line">			PRINT(<span class="string">"The system does not support the %s scope, using %s\n"</span>,</span><br><span class="line">					<span class="string">"PTHREAD_SCOPE_SYSTEM"</span>, <span class="string">"PTHREAD_SCOPE_PROCESS"</span>);</span><br><span class="line"></span><br><span class="line">			rval = pthread_attr_setscope(attr, PTHREAD_SCOPE_PROCESS);</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> (rval)</span><br><span class="line">		&#123;</span><br><span class="line">			pthread_attr_destroy(attr);</span><br><span class="line">			<span class="keyword">return</span> rval;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">	<span class="comment">/* use the round robin scheduling algorithm */</span></span><br><span class="line">	<span class="comment">//设置线程调度模式，循环</span></span><br><span class="line">	rval = pthread_attr_setschedpolicy(attr, SCHED_RR);</span><br><span class="line">	<span class="keyword">if</span> (rval != <span class="number">0</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		pthread_attr_destroy(attr);</span><br><span class="line">		<span class="keyword">return</span> rval;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* set the thread to be detached */</span></span><br><span class="line">	<span class="comment">//设置为分离线程，让线程结束的话释放自己的资源</span></span><br><span class="line">	rval = pthread_attr_setdetachstate(attr, PTHREAD_CREATE_DETACHED);</span><br><span class="line">	<span class="keyword">if</span> (rval != <span class="number">0</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		pthread_attr_destroy(attr);</span><br><span class="line">		<span class="keyword">return</span> rval;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* first get the scheduling parameter, then set the new priority */</span></span><br><span class="line">	<span class="comment">//设置线程的优先级</span></span><br><span class="line">	rval = pthread_attr_getschedparam(attr, &amp;params);</span><br><span class="line">	<span class="keyword">if</span> (rval != <span class="number">0</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		pthread_attr_destroy(attr);</span><br><span class="line">		<span class="keyword">return</span> rval;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	rval = pthreadGetPriorityScope(&amp;minPriority, &amp;maxPriority);</span><br><span class="line">	<span class="keyword">if</span> (rval != <span class="number">0</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		pthread_attr_destroy(attr);</span><br><span class="line">		<span class="keyword">return</span> rval;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> (priority &lt; minPriority)</span><br><span class="line">	&#123;</span><br><span class="line">		priority = minPriority;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span> <span class="keyword">if</span> (priority &gt; maxPriority)</span><br><span class="line">	&#123;</span><br><span class="line">		priority = maxPriority;</span><br><span class="line">	&#125;</span><br><span class="line">	params.sched_priority = priority;</span><br><span class="line">	rval = pthread_attr_setschedparam(attr, &amp;params);</span><br><span class="line">	<span class="keyword">if</span> (rval != <span class="number">0</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		pthread_attr_destroy(attr);</span><br><span class="line">		<span class="keyword">return</span> rval;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* when set stack size, we define a minmum value to avoid fail */</span></span><br><span class="line">	<span class="comment">//设置栈大小，最小8192</span></span><br><span class="line">	<span class="keyword">if</span> (*stacksize &lt; PTHREAD_STACK_MIN)</span><br><span class="line">	&#123;</span><br><span class="line">		*stacksize = PTHREAD_STACK_MIN;</span><br><span class="line">	&#125;</span><br><span class="line">	rval = pthread_attr_setstacksize(attr, *stacksize);</span><br><span class="line">	<span class="keyword">if</span> (rval != <span class="number">0</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		pthread_attr_destroy(attr);</span><br><span class="line">		<span class="keyword">return</span> rval;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Function: pthreadSpawn</span></span><br><span class="line"><span class="comment"> * Description: create a pthread, this is a variadic function</span></span><br><span class="line"><span class="comment"> * Input:	priority - [minPriority, maxPriority]</span></span><br><span class="line"><span class="comment"> *          stacksize - new thread's stack size(byte)</span></span><br><span class="line"><span class="comment"> *          funcptr - function addr to start the new thread</span></span><br><span class="line"><span class="comment"> *          args - total optional arguments pass to the above function</span></span><br><span class="line"><span class="comment"> *          ... - optional arguments</span></span><br><span class="line"><span class="comment"> * Output:  ptid - pthread id</span></span><br><span class="line"><span class="comment"> * Return:  0 if successful, otherwise an error number returned</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">pthreadSpawn</span><span class="params">(<span class="keyword">pthread_t</span> *ptid, <span class="keyword">int</span> priority, <span class="keyword">size_t</span> stacksize,</span></span></span><br><span class="line"><span class="function"><span class="params">		<span class="keyword">void</span> *(*funcptr)(<span class="keyword">void</span>*, <span class="keyword">void</span>*, <span class="keyword">void</span>*, <span class="keyword">void</span>*, <span class="keyword">void</span>*, <span class="keyword">void</span>*, <span class="keyword">void</span>*, <span class="keyword">void</span>*, <span class="keyword">void</span>*, <span class="keyword">void</span>*), </span></span></span><br><span class="line"><span class="function"><span class="params">		<span class="keyword">unsigned</span> args, ...)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (funcptr == <span class="literal">NULL</span> || args &gt; <span class="number">10</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">return</span> EINVAL;</span><br><span class="line">	&#125;</span><br><span class="line">        </span><br><span class="line">	<span class="keyword">int</span> i, rval;</span><br><span class="line">	<span class="keyword">void</span> *arg[] = &#123;<span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>&#125;;</span><br><span class="line">	START_ROUTINE start;</span><br><span class="line">	<span class="keyword">pthread_t</span> tid, *raw;</span><br><span class="line">	<span class="keyword">pthread_attr_t</span> attr;</span><br><span class="line">	va_list ap;</span><br><span class="line">	<span class="keyword">size_t</span> actStackSize = stacksize;</span><br><span class="line">	</span><br><span class="line">	va_start(ap, args);</span><br><span class="line">	<span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; args; i++)</span><br><span class="line">	&#123;</span><br><span class="line">		arg[i] = va_arg(ap, <span class="keyword">void</span> *);</span><br><span class="line">		PRINTA(<span class="string">"pthreadSpawn: arg[%d] = %d\n"</span>, i, (<span class="keyword">int</span>)arg[i]);</span><br><span class="line">	&#125;</span><br><span class="line">	va_end(ap);</span><br><span class="line">	rval = setPthreadAttr(&amp;attr, priority, &amp;actStackSize);</span><br><span class="line">	<span class="keyword">if</span> (rval != <span class="number">0</span>)	</span><br><span class="line">	&#123;</span><br><span class="line">		PRINTA(<span class="string">"setPthreadAttr failed %d,sys errno %d\n"</span>,rval,errno);</span><br><span class="line">		<span class="keyword">return</span> rval;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (ptid != <span class="literal">NULL</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		raw = ptid;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	&#123;</span><br><span class="line">		raw = &amp;tid;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">/* </span></span><br><span class="line"><span class="comment">	 * If the total optional argumens is 0 or 1, we call the pthread_create directly. </span></span><br><span class="line"><span class="comment">	 * Otherwise, we wrap a start routine.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="keyword">if</span> (args &lt;= <span class="number">1</span>)</span><br><span class="line">	&#123;	</span><br><span class="line">		rval = pthread_create(raw, &amp;attr, (START_ROUTINE)funcptr, arg[<span class="number">0</span>]);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	&#123;</span><br><span class="line">		FUNC_WRAPPER2 *func;</span><br><span class="line">		func = (FUNC_WRAPPER2 *)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(FUNC_WRAPPER2));</span><br><span class="line">		<span class="keyword">if</span> (func == <span class="literal">NULL</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			(<span class="keyword">void</span>) pthread_attr_destroy(&amp;attr);</span><br><span class="line">			<span class="keyword">return</span> ENOMEM;</span><br><span class="line">		&#125;</span><br><span class="line">		start = threadWrapper2;</span><br><span class="line">		<span class="built_in">memset</span>((<span class="keyword">char</span> *)func, <span class="number">0</span>, <span class="keyword">sizeof</span>(FUNC_WRAPPER2));</span><br><span class="line">		func-&gt;entry = funcptr;</span><br><span class="line">		<span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; args; i++)</span><br><span class="line">		&#123;</span><br><span class="line">			func-&gt;arg[i] = arg[i];</span><br><span class="line">		&#125;</span><br><span class="line">		rval = pthread_create(raw, &amp;attr, start, (<span class="keyword">void</span> *)func);</span><br><span class="line">		<span class="keyword">if</span> (rval != <span class="number">0</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="built_in">free</span>((<span class="keyword">char</span> *)func);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	pthread_attr_destroy(&amp;attr);</span><br><span class="line">	PRINTA(<span class="string">"pthread create: tid = %d, priority = %d, stacksize = %d\n"</span>, (<span class="keyword">int</span>)*raw, priority, actStackSize);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> rval;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<p>原文2：<a href="https://blog.csdn.net/Gpengtao/article/details/7792860" target="_blank" rel="noopener">https://blog.csdn.net/Gpengtao/article/details/7792860</a> </p>
+<p>原文1：<a href="https://blog.csdn.net/pbymw8iwm/article/details/6721038" target="_blank" rel="noopener">https://blog.csdn.net/pbymw8iwm/article/details/6721038</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/02/20/AF-INET和PE-INET区别/" rel="next" title="AF_INET和PE_INET区别">
+                <i class="fa fa-chevron-left"></i> AF_INET和PE_INET区别
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/02/20/linux-memalign-valloc函数/" rel="prev" title="linux memalign,valloc函数">
+                linux memalign,valloc函数 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.gif" alt="as3522">
+            
+              <p class="site-author-name" itemprop="name">as3522</p>
+              <p class="site-description motion-element" itemprop="description">personal blog</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#线程属性"><span class="nav-number">1.</span> <span class="nav-text">线程属性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#二、线程的分离状态"><span class="nav-number">1.1.</span> <span class="nav-text">二、线程的分离状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、线程的继承性"><span class="nav-number">1.2.</span> <span class="nav-text">三、线程的继承性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#四、线程的调度策略"><span class="nav-number">1.3.</span> <span class="nav-text">四、线程的调度策略</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#五、线程的调度参数（优先级）"><span class="nav-number">1.4.</span> <span class="nav-text">五、线程的调度参数（优先级）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#六、线程的竞争范围"><span class="nav-number">1.5.</span> <span class="nav-text">六、线程的竞争范围</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#七、线程的栈的地址和大小"><span class="nav-number">1.6.</span> <span class="nav-text">七、线程的栈的地址和大小</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#八、栈溢出保护区大小"><span class="nav-number">1.7.</span> <span class="nav-text">八、栈溢出保护区大小</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#九、设置-获取线程属性对象里CPU-姻亲属性"><span class="nav-number">1.8.</span> <span class="nav-text">九、设置/获取线程属性对象里CPU 姻亲属性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#十、获取实时优先级的最大最小值"><span class="nav-number">1.9.</span> <span class="nav-text">十、获取实时优先级的最大最小值</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Synopsis"><span class="nav-number">1.9.1.</span> <span class="nav-text">Synopsis</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Description"><span class="nav-number">1.9.2.</span> <span class="nav-text">Description</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Return-Value"><span class="nav-number">1.9.3.</span> <span class="nav-text">Return Value</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Errors"><span class="nav-number">1.9.4.</span> <span class="nav-text">Errors</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">as3522</span>
+
+  
+</div>
+
+
+  <div class="powered-by">个人网站 <a class="theme-link" target="_blank" href="http://www.as3522.com">as3522</a> </div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">By-as3522 </div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
