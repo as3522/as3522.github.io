@@ -89,16 +89,16 @@
 <meta property="og:site_name" content="as3522">
 <meta property="og:description" content="12345unsigned int i = 8;int main()&amp;#123;     i = i&amp;lt;&amp;lt;3;//输出结果i = 64&amp;#125; 请问：上面的变量i是采用逻辑移位还是算术移位呢？ 逻辑移位，简单理解就是物理上按位进行的左右移动，两头用0进行补充，不关心数值的符号问题。 算术移位，同样也是物理上按位进行的左右移动，两头用0进行补充，但必须确保符号位不改变。  逻辑移位">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://www.tangyilong.com/2019/02/20/算术移位逻辑移位/pic/算术移位003.png">
-<meta property="og:image" content="http://www.tangyilong.com/2019/02/20/算术移位逻辑移位/pic/算术移位004.png">
-<meta property="og:image" content="http://www.tangyilong.com/2019/02/20/算术移位逻辑移位/pic/算术移位001.png">
-<meta property="og:image" content="http://www.tangyilong.com/2019/02/20/算术移位逻辑移位/pic/算术移位002.png">
-<meta property="og:image" content="http://www.tangyilong.com/2019/02/20/算术移位逻辑移位/pic/算术移位005.png">
-<meta property="og:updated_time" content="2019-02-20T11:49:12.333Z">
+<meta property="og:image" content="http://www.tangyilong.com/pic/算术移位003.png">
+<meta property="og:image" content="http://www.tangyilong.com/pic/算术移位004.png">
+<meta property="og:image" content="http://www.tangyilong.com/pic/算术移位001.png">
+<meta property="og:image" content="http://www.tangyilong.com/pic/算术移位002.png">
+<meta property="og:image" content="http://www.tangyilong.com/pic/算术移位005.png">
+<meta property="og:updated_time" content="2019-02-20T12:24:26.714Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="算术移位逻辑移位">
 <meta name="twitter:description" content="12345unsigned int i = 8;int main()&amp;#123;     i = i&amp;lt;&amp;lt;3;//输出结果i = 64&amp;#125; 请问：上面的变量i是采用逻辑移位还是算术移位呢？ 逻辑移位，简单理解就是物理上按位进行的左右移动，两头用0进行补充，不关心数值的符号问题。 算术移位，同样也是物理上按位进行的左右移动，两头用0进行补充，但必须确保符号位不改变。  逻辑移位">
-<meta name="twitter:image" content="http://www.tangyilong.com/2019/02/20/算术移位逻辑移位/pic/算术移位003.png">
+<meta name="twitter:image" content="http://www.tangyilong.com/pic/算术移位003.png">
 
 
 
@@ -353,20 +353,20 @@
 </ul>
 <p>逻辑移位是指逻辑左移和逻辑右移，移出的空位都用0来补。</p>
 <p>此组指令有：逻辑左移SHL(ShiftLogical Left)和逻辑右移SHR(ShiftLogical Right)。它们的指令格式如下：SHL/SHR Reg/Mem, CL/Imm，受影响的标志位：CF、OF、PF、SF和ZF(AF无定义)。逻辑左移/右移指令只有它们的移位方向不同，移位后空出的位都补<strong>0</strong></p>
-<p>（1）逻辑左移SHL<br><img src="pic/算术移位003.png" alt="img1"><br>（2）逻辑右移SHR<br><img src="pic/算术移位004.png" alt="img1"></p>
+<p>（1）逻辑左移SHL<br><img src="/pic/算术移位003.png" alt="img1"><br>（2）逻辑右移SHR<br><img src="/pic/算术移位004.png" alt="img1"></p>
 <ul>
 <li><strong>算术移位</strong></li>
 </ul>
 <p>算术移位 就需要分有符号型值和无符号型值<br>==对于无符号型值，算术移位等同于逻辑移位==<br>==而对于有符号型值 ，算术左移等同于逻辑左移，算术右移补的是符号位，正数补0，负数补1。==</p>
 <p>算术移位指令有：算术左移SAL(ShiftAlgebraic Left)和算术右移SAR(ShiftAlgebraic Right)。它们的指令格式如下：SAL/SAR Reg/Mem, CL/Imm，受影响的标志位：CF、OF、PF、SF和ZF(AF无定义)。算术移位指令的功能描述如下：</p>
-<p>（1）算术左移SAL把目的操作数的低位向高位移，空出的低位补0；<br><img src="pic/算术移位001.png" alt="img1"><br>（2）算术右移SAR把目的操作数的高位向低位移，空出的高位用最高位(符号位)填补。<br><img src="pic/算术移位002.png" alt="img1"></p>
+<p>（1）算术左移SAL把目的操作数的低位向高位移，空出的低位补0；<br><img src="/pic/算术移位001.png" alt="img1"><br>（2）算术右移SAR把目的操作数的高位向低位移，空出的高位用最高位(符号位)填补。<br><img src="/pic/算术移位002.png" alt="img1"></p>
 <ul>
 <li><strong>那么C编译器中采用的是那种移位方式呢？</strong></li>
 </ul>
 <p>在汇编指令中，shl和shr表示逻辑左移和逻辑右移，sal和sar表示算术左移和算术右移</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> a = <span class="number">65</span>;  <span class="comment">//有符号整型 0100 0001</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> b = <span class="number">65</span>; <span class="comment">//无符号整型 0100 0001</span></span><br><span class="line">    a &lt;&lt;= <span class="number">1</span>; <span class="comment">//1000 0010  130</span></span><br><span class="line">    b &gt;&gt;= <span class="number">1</span>; <span class="comment">//0010 0000  32</span></span><br><span class="line">    <span class="keyword">char</span> c = <span class="number">127</span>; <span class="comment">//0111 1111</span></span><br><span class="line">    c &lt;&lt;= <span class="number">3</span>; <span class="comment">//1111 1000 -8</span></span><br><span class="line">    <span class="keyword">char</span> d = <span class="number">127</span>; <span class="comment">//0111 1111</span></span><br><span class="line">    d &gt;&gt;= <span class="number">3</span>; <span class="comment">//0000 1111 15</span></span><br><span class="line">    <span class="keyword">char</span> e = <span class="number">-8</span>; <span class="comment">//内存以补码为1111 1000存储  源码为1000 1000 反码为1111 0111</span></span><br><span class="line">    e &gt;&gt;= <span class="number">3</span>; <span class="comment">//-1  补码1111 1111 源码 1000 0001 反码1111 1110</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%d %d\n"</span>,a,b);<span class="comment">//130 32</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%d %d\n"</span>,c,d);<span class="comment">//-8  15</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%d\n"</span>,e);  <span class="comment">//-1</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>让我们来看一看这一段代码的汇编代码 </p>
-<p><img src="pic/算术移位005.png" alt="img1"></p>
+<p><img src="/pic/算术移位005.png" alt="img1"></p>
 <p>只看汇编代码进行分析：</p>
 <p>汇编代码的第四行和第七行以及第十一行是对a，b，c三个变量进行的移位操作，即有符号型变量左移和无符号型右移C编译器都处理为逻辑移位，用的指令是shl和shr，移出的空位用0来补。</p>
 <p>而对于汇编代码的第十五行和第十九行是对d，e两个变量进行的移位操作，即正数和负数的有符号型变量的右移，C编译器处理为算术移位，用的指令是sar，移出的空位，正数补0，负数补1。</p>

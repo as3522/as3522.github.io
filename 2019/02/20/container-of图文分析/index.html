@@ -89,13 +89,13 @@
 <meta property="og:site_name" content="as3522">
 <meta property="og:description" content="container of()函数分析简介Container_of在Linux内核中是一个常用的宏，用于从包含在某个结构中的指针获得结构本身的指针，通俗地讲就是通过结构体变量中某个成员的首地址进而获得整个结构体变量的首地址。 Container_of的定义如下： 123#define container_of(ptr, type, member) (&amp;#123;	    \	const typeof">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://www.tangyilong.com/2019/02/20/container-of图文分析/pic/container_of.png">
-<meta property="og:image" content="http://www.tangyilong.com/2019/02/20/container-of图文分析/pic/container_of002.gif">
-<meta property="og:updated_time" content="2019-02-20T11:43:22.342Z">
+<meta property="og:image" content="http://www.tangyilong.com/pic/container_of.png">
+<meta property="og:image" content="http://www.tangyilong.com/pic/container_of002.gif">
+<meta property="og:updated_time" content="2019-02-20T12:21:16.607Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="container_of图文分析">
 <meta name="twitter:description" content="container of()函数分析简介Container_of在Linux内核中是一个常用的宏，用于从包含在某个结构中的指针获得结构本身的指针，通俗地讲就是通过结构体变量中某个成员的首地址进而获得整个结构体变量的首地址。 Container_of的定义如下： 123#define container_of(ptr, type, member) (&amp;#123;	    \	const typeof">
-<meta name="twitter:image" content="http://www.tangyilong.com/2019/02/20/container-of图文分析/pic/container_of.png">
+<meta name="twitter:image" content="http://www.tangyilong.com/pic/container_of.png">
 
 
 
@@ -344,7 +344,7 @@
         <h1 id="container-of-函数分析"><a href="#container-of-函数分析" class="headerlink" title="container of()函数分析"></a>container of()函数分析</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Container_of在Linux内核中是一个常用的宏，用于从包含在某个结构中的指针获得结构本身的指针，通俗地讲<strong>就是通过结构体变量中某个成员的首地址进而获得整个结构体变量的首地址。</strong></p>
 <p>Container_of的定义如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> container_of(ptr, type, member) (&#123;	    \</span></span><br><span class="line">	<span class="function"><span class="keyword">const</span> <span class="title">typeof</span><span class="params">( ((type *)<span class="number">0</span>)-&gt;member )</span> *__mptr </span>= (ptr);    \</span><br><span class="line">	(type *)( (<span class="keyword">char</span> *)__mptr - offsetof(type,member) );&#125;)</span><br></pre></td></tr></table></figure>
-<p><img src="pic/container_of.png" alt="img"></p>
+<p><img src="/pic/container_of.png" alt="img"></p>
 <p> 其实，原理很简单：  已知结构体type的成员member的地址ptr，求解结构体type的起始地址。</p>
 <p>​                  type的起始地址 = ptr - size      (这里需要都转换为char *，因为它为单位字节)。</p>
 <p>具体来说分为两步：</p>
@@ -356,7 +356,7 @@
 <p>​    例子输出结果：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">offsetof(struct test_struct, num) = 0</span><br><span class="line">offsetof(struct test_struct,  ch) = 4</span><br><span class="line">offsetof(struct test_struct,  fl) = 8</span><br></pre></td></tr></table></figure>
 <p>其中代码难以理解的地方就是它灵活地运用了0地址。如果觉得&amp;( (struct test_struct <em>)0 )-&gt;ch这样的代码不好理解，那么我们可以假设在0地址分配了一个结构体变量struct test_struct a，然后定义结构体指针变量p并指向a（struct test_struct </em>p = &amp;a），如此我们就可以通过&amp;p-&gt;ch获得成员ch的地址。由于a的首地址为0x0，所以成员ch的首地址为0x4</p>
-<p><img src="pic/container_of002.gif" alt="img2"></p>
+<p><img src="/pic/container_of002.gif" alt="img2"></p>
 <p>最后通过强制类型转换（size_t）把一个地址值转换为一个整数</p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>   container_of（ptr, type,member）函数的实现包括两部分：</p>
 <p>​    1、判断ptr 与 member 是否为同意类型</p>
