@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="as3522" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="Linux编程之selectselect系统调用的的用途是：在一段指定的时间内，监听用户感兴趣的文件描述符上可读、可写和异常等事件。 select 机制的优势为什么会出现select模型？ 先看一下下面的这句代码： 1int iResult = recv(s, buffer,1024); 这是用来接收数据的，在默认的阻塞模式下的套接字里，recv会阻塞在那里，直到套接字连接上有数据可读，把数据读到">
+<meta name="keywords" content="as3522">
+<meta property="og:type" content="article">
+<meta property="og:title" content="linux编程之select">
+<meta property="og:url" content="http://www.tangyilong.com/2019/04/13/linux编程之select/index.html">
+<meta property="og:site_name" content="as3522">
+<meta property="og:description" content="Linux编程之selectselect系统调用的的用途是：在一段指定的时间内，监听用户感兴趣的文件描述符上可读、可写和异常等事件。 select 机制的优势为什么会出现select模型？ 先看一下下面的这句代码： 1int iResult = recv(s, buffer,1024); 这是用来接收数据的，在默认的阻塞模式下的套接字里，recv会阻塞在那里，直到套接字连接上有数据可读，把数据读到">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://www.tangyilong.com/pic/linux-select001.png">
+<meta property="og:image" content="http://www.tangyilong.com/pic/linux-select002.png">
+<meta property="og:image" content="http://www.tangyilong.com/pic/linux-select003.png">
+<meta property="og:updated_time" content="2019-04-13T06:16:27.663Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="linux编程之select">
+<meta name="twitter:description" content="Linux编程之selectselect系统调用的的用途是：在一段指定的时间内，监听用户感兴趣的文件描述符上可读、可写和异常等事件。 select 机制的优势为什么会出现select模型？ 先看一下下面的这句代码： 1int iResult = recv(s, buffer,1024); 这是用来接收数据的，在默认的阻塞模式下的套接字里，recv会阻塞在那里，直到套接字连接上有数据可读，把数据读到">
+<meta name="twitter:image" content="http://www.tangyilong.com/pic/linux-select001.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.tangyilong.com/2019/04/13/linux编程之select/">
+
+
+
+
+
+  <title>linux编程之select | as3522</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+
+   <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;"></canvas> 
+      <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+	     <script type="text/javascript" src="/js/src/fireworks.js"></script>
+
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">as3522</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.tangyilong.com/2019/04/13/linux编程之select/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="as3522">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="as3522">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">linux编程之select</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-13T14:15:11+08:00">
+                2019-04-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Linux编程之select"><a href="#Linux编程之select" class="headerlink" title="Linux编程之select"></a>Linux编程之select</h1><p>select系统调用的的用途是：在一段指定的时间内，监听用户感兴趣的文件描述符上可读、可写和异常等事件。</p>
+<h2 id="select-机制的优势"><a href="#select-机制的优势" class="headerlink" title="select 机制的优势"></a>select 机制的优势</h2><p>为什么会出现select模型？</p>
+<p>先看一下下面的这句代码：</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> iResult = recv(s, <span class="built_in">buffer</span>,<span class="number">1024</span>);</span><br></pre></td></tr></table></figure>
+<p>这是用来接收数据的，在默认的阻塞模式下的套接字里，recv会阻塞在那里，直到套接字连接上有数据可读，把数据读到buffer里后recv函数才会返回，不然就会一直阻塞在那里。在单线程的程序里出现这种情况会导致主线程（单线程程序里只有一个默认的主线程）被阻塞,这样整个程序被锁死在这里，如果永 远没数据发送过来，那么程序就会被永远锁死。这个问题可以用多线程解决，但是在有多个套接字连接的情况下，这不是一个好的选择，扩展性很差。</p>
+<p>再看代码：</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> iResult = ioctlsocket(s, FIOBIO, (<span class="keyword">unsigned</span> <span class="keyword">long</span> *)&amp;ul);</span><br><span class="line">iResult = recv(s, <span class="built_in">buffer</span>,<span class="number">1024</span>);</span><br></pre></td></tr></table></figure>
+<p>这一次recv的调用不管套接字连接上有没有数据可以接收都会马上返回。原因就在于我们用ioctlsocket把套接字设置为非阻塞模式了。不过你跟踪一下就会发现，在没有数据的情况下，recv确实是马上返回了，但是也返回了一个错误：WSAEWOULDBLOCK，意思就是请求的操作没有成功完成。</p>
+<p>看到这里很多人可能会说，那么就重复调用recv并检查返回值，直到成功为止，但是这样做效率很成问题，开销太大。</p>
+<p>select模型的出现就是为了解决上述问题。<br>select模型的关键是使用一种有序的方式，对多个套接字进行统一管理与调度 。</p>
+<p><img src="/pic/linux-select001.png" alt="img"></p>
+<p>如上所示，用户首先将需要进行IO操作的socket添加到select中，然后阻塞等待select系统调用返回。当数据到达时，socket被激活，select函数返回。用户线程正式发起read请求，读取数据并继续执行。</p>
+<p>从流程上来看，使用select函数进行IO请求和同步阻塞模型没有太大的区别，甚至还多了添加监视socket，以及调用select函数的额外操作，效率更差。但是，使用select以后最大的优势是用户可以在一个线程内同时处理多个socket的IO请求。用户可以注册多个socket，然后不断地调用select读取被激活的socket，即可达到在同一个线程内同时处理多个IO请求的目的。而在同步阻塞模型中，必须通过多线程的方式才能达到这个目的。</p>
+<p>select流程伪代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    select(socket);</span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>) </span><br><span class="line">    &#123;</span><br><span class="line">        sockets = select();</span><br><span class="line">        <span class="keyword">for</span>(socket in sockets) </span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(can_read(socket)) </span><br><span class="line">            &#123;</span><br><span class="line">                read(socket, buffer);</span><br><span class="line">                process(buffer);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="select相关API介绍与使用"><a href="#select相关API介绍与使用" class="headerlink" title="select相关API介绍与使用"></a>select相关API介绍与使用</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/select.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/time.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">select</span><span class="params">(<span class="keyword">int</span> maxfdp, fd_set *readset, fd_set *writeset, fd_set *exceptset,struct timeval *timeout)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>参数说明：</p>
+<p>maxfdp：被监听的文件描述符的总数，它比所有文件描述符集合中的文件描述符的最大值大1，因为文件描述符是从0开始计数的；</p>
+<p>readfds、writefds、exceptset：分别指向可读、可写和异常等事件对应的描述符集合。</p>
+<p>timeout:用于设置select函数的超时时间，即告诉内核select等待多长时间之后就放弃等待。timeout == NULL 表示等待无限长的时间</p>
+<p>timeval结构体定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">timeval</span></span></span><br><span class="line"><span class="class">&#123;</span>      </span><br><span class="line">    <span class="keyword">long</span> tv_sec;   <span class="comment">/*秒 */</span></span><br><span class="line">    <span class="keyword">long</span> tv_usec;  <span class="comment">/*微秒 */</span>   </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>返回值：超时返回0;失败返回-1；成功返回大于0的整数，这个整数表示就绪描述符的数目。</p>
+<p>以下介绍与select函数相关的常见的几个宏：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/select.h&gt;   </span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">FD_ZERO</span><span class="params">(<span class="keyword">int</span> fd, fd_set *fdset)</span></span>;   <span class="comment">//一个 fd_set类型变量的所有位都设为 0</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">FD_CLR</span><span class="params">(<span class="keyword">int</span> fd, fd_set *fdset)</span></span>;  <span class="comment">//清除某个位时可以使用</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">FD_SET</span><span class="params">(<span class="keyword">int</span> fd, fd_set *fd_set)</span></span>;   <span class="comment">//设置变量的某个位置位</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">FD_ISSET</span><span class="params">(<span class="keyword">int</span> fd, fd_set *fdset)</span></span>; <span class="comment">//测试某个位是否被置位</span></span><br></pre></td></tr></table></figure>
+<p>select使用范例：<br>当声明了一个文件描述符集后，必须用FD_ZERO将所有位置零。之后将我们所感兴趣的描述符所对应的位置位，操作如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">fd_set rset;   </span><br><span class="line"><span class="keyword">int</span> fd;   </span><br><span class="line">FD_ZERO(&amp;rset);   </span><br><span class="line">FD_SET(fd, &amp;rset);   </span><br><span class="line">FD_SET(<span class="built_in">stdin</span>, &amp;rset);</span><br></pre></td></tr></table></figure>
+<p>然后调用select函数，拥塞等待文件描述符事件的到来；如果超过设定的时间，则不再等待，继续往下执行。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select(fd+<span class="number">1</span>, &amp;rset, <span class="literal">NULL</span>, <span class="literal">NULL</span>,<span class="literal">NULL</span>);</span><br></pre></td></tr></table></figure>
+<p>select返回后，用FD_ISSET测试给定位是否置位：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(FD_ISSET(fd, &amp;rset)   </span><br><span class="line">&#123; </span><br><span class="line">    ... </span><br><span class="line">    <span class="comment">//do something  </span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>下面是一个最简单的select的使用例子：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/select.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/time.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    fd_set rd;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">timeval</span> <span class="title">tv</span>;</span></span><br><span class="line">    <span class="keyword">int</span> err;</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">    FD_ZERO(&amp;rd);</span><br><span class="line">    FD_SET(<span class="number">0</span>,&amp;rd);</span><br><span class="line">    </span><br><span class="line">    tv.tv_sec = <span class="number">5</span>;</span><br><span class="line">    tv.tv_usec = <span class="number">0</span>;</span><br><span class="line">    err = select(<span class="number">1</span>,&amp;rd,<span class="literal">NULL</span>,<span class="literal">NULL</span>,&amp;tv);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span>(err == <span class="number">0</span>) <span class="comment">//超时</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"select time out!\n"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(err == <span class="number">-1</span>)  <span class="comment">//失败</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"fail to select!\n"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span>  <span class="comment">//成功</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"data is available!\n"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们运行该程序并且随便输入一些数据，程序就提示收到数据了。<br><img src="/pic/linux-select002.png" alt="img"></p>
+<h2 id="深入理解select模型："><a href="#深入理解select模型：" class="headerlink" title="深入理解select模型："></a>深入理解select模型：</h2><p>理解select模型的关键在于理解fd_set,为说明方便，取fd_set长度为1字节，fd_set中的每一bit可以对应一个文件描述符fd。则1字节长的fd_set最大可以对应8个fd。</p>
+<p>（1）执行fd_set set; FD_ZERO(&amp;set); 则set用位表示是0000,0000。</p>
+<p>（2）若fd＝5,执行FD_SET(fd,&amp;set);后set变为0001,0000(第5位置为1)</p>
+<p>（3）若再加入fd＝2，fd=1,则set变为0001,0011</p>
+<p>（4）执行select(6,&amp;set,0,0,0)阻塞等待</p>
+<p>（5）若fd=1,fd=2上都发生可读事件，则select返回，此时set变为0000,0011。注意：没有事件发生的fd=5被清空。</p>
+<p>基于上面的讨论，可以轻松得出select模型的特点：</p>
+<p>（1）可监控的文件描述符个数取决与sizeof(fd_set)的值。我这边服务器上sizeof(fd_set)＝512，每bit表示一个文件描述符，则我服务器上支持的最大文件描述符是512*8=4096。据说可调，另有说虽然可调，但调整上限受于编译内核时的变量值。</p>
+<p>（2）将fd加入select监控集的同时，还要再使用一个数据结构array保存放到select监控集中的fd，一是用于再select返回后，array作为源数据和fd_set进行FD_ISSET判断。二是select返回后会把以前加入的但并无事件发生的fd清空，则每次开始select前都要重新从array取得fd逐一加入（FD_ZERO最先），扫描array的同时取得fd最大值maxfd，用于select的第一个参数。</p>
+<p>（3）可见select模型必须在select前循环加fd，取maxfd，select返回后利用FD_ISSET判断是否有事件发生。</p>
+<h2 id="用select处理带外数据"><a href="#用select处理带外数据" class="headerlink" title="用select处理带外数据"></a>用select处理带外数据</h2><p>网络程序中，select能处理的异常情况只有一种：socket上接收到带外数据。</p>
+<p>什么是带外数据？</p>
+<p>带外数据(out—of—band data)，有时也称为加速数据(expedited data)，<br>是指连接双方中的一方发生重要事情，想要迅速地通知对方。<br>这种通知在已经排队等待发送的任何“普通”(有时称为“带内”)数据之前发送。<br>带外数据设计为比普通数据有更高的优先级。<br>带外数据是映射到现有的连接中的，而不是在客户机和服务器间再用一个连接。</p>
+<p>我们写的select程序经常都是用于接收普通数据的，当我们的服务器需要同时接收普通数据和带外数据，我们如何使用select进行处理二者呢？</p>
+<p>下面给出一个小demo：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/time.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/socket.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;netinet/in.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;arpa/inet.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>* argv[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(argc &lt;= <span class="number">2</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"usage: ip address + port numbers\n"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span>* ip = argv[<span class="number">1</span>];</span><br><span class="line">    <span class="keyword">int</span> port = atoi(argv[<span class="number">2</span>]);</span><br><span class="line"></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"ip: %s\n"</span>,ip);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"port: %d\n"</span>,port);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">int</span> ret = <span class="number">0</span>;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">address</span>;</span></span><br><span class="line">    bzero(&amp;address,<span class="keyword">sizeof</span>(address));</span><br><span class="line">    address.sin_family = AF_INET;</span><br><span class="line">    inet_pton(AF_INET,ip,&amp;address.sin_addr);</span><br><span class="line">    address.sin_port = htons(port);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">int</span> listenfd = socket(PF_INET,SOCK_STREAM,<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span>(listenfd &lt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Fail to create listen socket!\n"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    ret = bind(listenfd,(struct sockaddr*)&amp;address,<span class="keyword">sizeof</span>(address));</span><br><span class="line">    <span class="keyword">if</span>(ret == <span class="number">-1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Fail to bind socket!\n"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    ret = listen(listenfd,<span class="number">5</span>); <span class="comment">//监听队列最大排队数设置为5</span></span><br><span class="line">    <span class="keyword">if</span>(ret == <span class="number">-1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Fail to listen socket!\n"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">client_address</span>;</span>  <span class="comment">//记录进行连接的客户端的地址</span></span><br><span class="line">    <span class="keyword">socklen_t</span> client_addrlength = <span class="keyword">sizeof</span>(client_address);</span><br><span class="line">    <span class="keyword">int</span> connfd = accept(listenfd,(struct sockaddr*)&amp;client_address,&amp;client_addrlength);</span><br><span class="line">    <span class="keyword">if</span>(connfd &lt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Fail to accept!\n"</span>);</span><br><span class="line">        close(listenfd);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">char</span> buff[<span class="number">1024</span>]; <span class="comment">//数据接收缓冲区</span></span><br><span class="line">    fd_set read_fds;  <span class="comment">//读文件操作符</span></span><br><span class="line">    fd_set exception_fds; <span class="comment">//异常文件操作符</span></span><br><span class="line">    FD_ZERO(&amp;read_fds);</span><br><span class="line">    FD_ZERO(&amp;exception_fds);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">memset</span>(buff,<span class="number">0</span>,<span class="keyword">sizeof</span>(buff));</span><br><span class="line">        <span class="comment">/*每次调用select之前都要重新在read_fds和exception_fds中设置文件描述符connfd，因为事件发生以后，文件描述符集合将被内核修改*/</span></span><br><span class="line">        FD_SET(connfd,&amp;read_fds);</span><br><span class="line">        FD_SET(connfd,&amp;exception_fds);</span><br><span class="line">        </span><br><span class="line">        ret = select(connfd+<span class="number">1</span>,&amp;read_fds,<span class="literal">NULL</span>,&amp;exception_fds,<span class="literal">NULL</span>);</span><br><span class="line">        <span class="keyword">if</span>(ret &lt; <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"Fail to select!\n"</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span>(FD_ISSET(connfd, &amp;read_fds))</span><br><span class="line">        &#123;</span><br><span class="line">            ret = recv(connfd,buff,<span class="keyword">sizeof</span>(buff)<span class="number">-1</span>,<span class="number">0</span>);</span><br><span class="line">            <span class="keyword">if</span>(ret &lt;= <span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            </span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"get %d bytes of normal data: %s \n"</span>,ret,buff);</span><br><span class="line">            </span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span>(FD_ISSET(connfd,&amp;exception_fds)) <span class="comment">//异常事件</span></span><br><span class="line">        &#123;</span><br><span class="line">            ret = recv(connfd,buff,<span class="keyword">sizeof</span>(buff)<span class="number">-1</span>,MSG_OOB);</span><br><span class="line">            <span class="keyword">if</span>(ret &lt;= <span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            </span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"get %d bytes of exception data: %s \n"</span>,ret,buff);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    close(connfd);</span><br><span class="line">    close(listenfd);</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="用select来解决socket中的多客户问题"><a href="#用select来解决socket中的多客户问题" class="headerlink" title="用select来解决socket中的多客户问题"></a>用select来解决socket中的多客户问题</h2><p>上面提到过，，使用select以后最大的优势是用户可以在一个线程内同时处理多个socket的IO请求。在网络编程中，当涉及到多客户访问服务器的情况，我们首先想到的办法就是fork出多个进程来处理每个客户连接。现在，我们同样可以使用select来处理多客户问题，而不用fork。</p>
+<p>服务器端</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt; </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/socket.h&gt; </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt; </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;netinet/in.h&gt; </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/time.h&gt; </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/ioctl.h&gt; </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt; </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span></span><br><span class="line"><span class="function"></span>&#123; </span><br><span class="line">    <span class="keyword">int</span> server_sockfd, client_sockfd; </span><br><span class="line">    <span class="keyword">int</span> server_len, client_len; </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">server_address</span>;</span> </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">client_address</span>;</span> </span><br><span class="line">    <span class="keyword">int</span> result; </span><br><span class="line">    fd_set readfds, testfds; </span><br><span class="line">    server_sockfd = socket(AF_INET, SOCK_STREAM, <span class="number">0</span>);<span class="comment">//建立服务器端socket </span></span><br><span class="line">    server_address.sin_family = AF_INET; </span><br><span class="line">    server_address.sin_addr.s_addr = htonl(INADDR_ANY); </span><br><span class="line">    server_address.sin_port = htons(<span class="number">8888</span>); </span><br><span class="line">    server_len = <span class="keyword">sizeof</span>(server_address); </span><br><span class="line">    bind(server_sockfd, (struct sockaddr *)&amp;server_address, server_len); </span><br><span class="line">    listen(server_sockfd, <span class="number">5</span>); <span class="comment">//监听队列最多容纳5个 </span></span><br><span class="line">    FD_ZERO(&amp;readfds); </span><br><span class="line">    FD_SET(server_sockfd, &amp;readfds);<span class="comment">//将服务器端socket加入到集合中</span></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>) </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">char</span> ch; </span><br><span class="line">        <span class="keyword">int</span> fd; </span><br><span class="line">        <span class="keyword">int</span> nread; </span><br><span class="line">        testfds = readfds;<span class="comment">//将需要监视的描述符集copy到select查询队列中，select会对其修改，所以一定要分开使用变量 </span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"server waiting\n"</span>); </span><br><span class="line"></span><br><span class="line">        <span class="comment">/*无限期阻塞，并测试文件描述符变动 */</span></span><br><span class="line">        result = select(FD_SETSIZE, &amp;testfds, (fd_set *)<span class="number">0</span>,(fd_set *)<span class="number">0</span>, (struct timeval *) <span class="number">0</span>); <span class="comment">//FD_SETSIZE：系统默认的最大文件描述符</span></span><br><span class="line">        <span class="keyword">if</span>(result &lt; <span class="number">1</span>) </span><br><span class="line">        &#123; </span><br><span class="line">            perror(<span class="string">"server5"</span>); </span><br><span class="line">            <span class="built_in">exit</span>(<span class="number">1</span>); </span><br><span class="line">        &#125; </span><br><span class="line"></span><br><span class="line">        <span class="comment">/*扫描所有的文件描述符*/</span></span><br><span class="line">        <span class="keyword">for</span>(fd = <span class="number">0</span>; fd &lt; FD_SETSIZE; fd++) </span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">/*找到相关文件描述符*/</span></span><br><span class="line">            <span class="keyword">if</span>(FD_ISSET(fd,&amp;testfds)) </span><br><span class="line">            &#123; </span><br><span class="line">              <span class="comment">/*判断是否为服务器套接字，是则表示为客户请求连接。*/</span></span><br><span class="line">                <span class="keyword">if</span>(fd == server_sockfd) </span><br><span class="line">                &#123; </span><br><span class="line">                    client_len = <span class="keyword">sizeof</span>(client_address); </span><br><span class="line">                    client_sockfd = accept(server_sockfd, </span><br><span class="line">                    (struct sockaddr *)&amp;client_address, &amp;client_len); </span><br><span class="line">                    FD_SET(client_sockfd, &amp;readfds);<span class="comment">//将客户端socket加入到集合中</span></span><br><span class="line">                    <span class="built_in">printf</span>(<span class="string">"adding client on fd %d\n"</span>, client_sockfd); </span><br><span class="line">                &#125; </span><br><span class="line">                <span class="comment">/*客户端socket中有数据请求时*/</span></span><br><span class="line">                <span class="keyword">else</span> </span><br><span class="line">                &#123; </span><br><span class="line">                    ioctl(fd, FIONREAD, &amp;nread);<span class="comment">//取得数据量交给nread</span></span><br><span class="line">                    </span><br><span class="line">                    <span class="comment">/*客户数据请求完毕，关闭套接字，从集合中清除相应描述符 */</span></span><br><span class="line">                    <span class="keyword">if</span>(nread == <span class="number">0</span>) </span><br><span class="line">                    &#123; </span><br><span class="line">                        close(fd); </span><br><span class="line">                        FD_CLR(fd, &amp;readfds); <span class="comment">//去掉关闭的fd</span></span><br><span class="line">                        <span class="built_in">printf</span>(<span class="string">"removing client on fd %d\n"</span>, fd); </span><br><span class="line">                    &#125; </span><br><span class="line">                    <span class="comment">/*处理客户数据请求*/</span></span><br><span class="line">                    <span class="keyword">else</span> </span><br><span class="line">                    &#123; </span><br><span class="line">                        read(fd, &amp;ch, <span class="number">1</span>); </span><br><span class="line">                        sleep(<span class="number">5</span>); </span><br><span class="line">                        <span class="built_in">printf</span>(<span class="string">"serving client on fd %d\n"</span>, fd); </span><br><span class="line">                        ch++; </span><br><span class="line">                        write(fd, &amp;ch, <span class="number">1</span>); </span><br><span class="line">                    &#125; </span><br><span class="line">                &#125; </span><br><span class="line">            &#125; </span><br><span class="line">        &#125; </span><br><span class="line">    &#125; </span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>客户端</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//客户端</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt; </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/socket.h&gt; </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt; </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;netinet/in.h&gt; </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;arpa/inet.h&gt; </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt; </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/time.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span></span><br><span class="line"><span class="function"></span>&#123; </span><br><span class="line">    <span class="keyword">int</span> client_sockfd; </span><br><span class="line">    <span class="keyword">int</span> len; </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">address</span>;</span><span class="comment">//服务器端网络地址结构体 </span></span><br><span class="line">     <span class="keyword">int</span> result; </span><br><span class="line">    <span class="keyword">char</span> ch = <span class="string">'A'</span>; </span><br><span class="line">    client_sockfd = socket(AF_INET, SOCK_STREAM, <span class="number">0</span>);<span class="comment">//建立客户端socket </span></span><br><span class="line">    address.sin_family = AF_INET; </span><br><span class="line">    address.sin_addr.s_addr = inet_addr(<span class="string">"127.0.0.1"</span>);</span><br><span class="line">    address.sin_port = htons(<span class="number">8888</span>); </span><br><span class="line">    len = <span class="keyword">sizeof</span>(address); </span><br><span class="line">    result = connect(client_sockfd, (struct sockaddr *)&amp;address, len); </span><br><span class="line">    <span class="keyword">if</span>(result == <span class="number">-1</span>) </span><br><span class="line">    &#123; </span><br><span class="line">         perror(<span class="string">"oops: client2"</span>); </span><br><span class="line">         <span class="built_in">exit</span>(<span class="number">1</span>); </span><br><span class="line">    &#125; </span><br><span class="line">    <span class="comment">//第一次读写</span></span><br><span class="line">    write(client_sockfd, &amp;ch, <span class="number">1</span>); </span><br><span class="line">    read(client_sockfd, &amp;ch, <span class="number">1</span>); </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"the first time: char from server = %c\n"</span>, ch); </span><br><span class="line">    sleep(<span class="number">5</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//第二次读写</span></span><br><span class="line">    write(client_sockfd, &amp;ch, <span class="number">1</span>); </span><br><span class="line">    read(client_sockfd, &amp;ch, <span class="number">1</span>); </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"the second time: char from server = %c\n"</span>, ch);</span><br><span class="line">    </span><br><span class="line">    close(client_sockfd); </span><br><span class="line">   </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行流程：</p>
+<p>客户端：启动-&gt;连接服务器-&gt;发送A-&gt;等待服务器回复-&gt;收到B-&gt;再发B给服务器-&gt;收到C-&gt;结束</p>
+<p>服务器：启动-&gt;select-&gt;收到A-&gt;发A+1回去-&gt;收到B-&gt;发B+1过去</p>
+<p>测试：我们先运行服务器，再运行客户端<br><img src="/pic/linux-select003.png" alt="img"></p>
+<h2 id="select总结："><a href="#select总结：" class="headerlink" title="select总结："></a>select总结：</h2><p>select本质上是通过设置或者检查存放fd标志位的数据结构来进行下一步处理。这样所带来的缺点是：</p>
+<p>1、单个进程可监视的fd数量被限制，即能监听端口的大小有限。一般来说这个数目和系统内存关系很大，具体数目可以cat/proc/sys/fs/file-max察看。32位机默认是1024个。64位机默认是2048.</p>
+<p>2、 对socket进行扫描时是线性扫描，即采用轮询的方法，效率较低：当套接字比较多的时候，每次select()都要通过遍历FD_SETSIZE个Socket来完成调度,不管哪个Socket是活跃的,都遍历一遍。这会浪费很多CPU时间。如果能给套接字注册某个回调函数，当他们活跃时，自动完成相关操作，那就避免了轮询，这正是epoll与kqueue做的。</p>
+<p>3、需要维护一个用来存放大量fd的数据结构，这样会使得用户空间和内核空间在传递该结构时复制开销大。</p>
+<hr>
+<p><a href="https://www.cnblogs.com/skyfsm/p/7079458.html" target="_blank" rel="noopener">转</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/04/13/select-poll-epoll的简介和区别/" rel="next" title="select-poll-epoll的简介和区别">
+                <i class="fa fa-chevron-left"></i> select-poll-epoll的简介和区别
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/04/13/串口清空输入输出缓存/" rel="prev" title="串口清空输入输出缓存">
+                串口清空输入输出缓存 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.gif" alt="as3522">
+            
+              <p class="site-author-name" itemprop="name">as3522</p>
+              <p class="site-description motion-element" itemprop="description">personal blog</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">26</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Linux编程之select"><span class="nav-number">1.</span> <span class="nav-text">Linux编程之select</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#select-机制的优势"><span class="nav-number">1.1.</span> <span class="nav-text">select 机制的优势</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#select相关API介绍与使用"><span class="nav-number">1.2.</span> <span class="nav-text">select相关API介绍与使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#深入理解select模型："><span class="nav-number">1.3.</span> <span class="nav-text">深入理解select模型：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#用select处理带外数据"><span class="nav-number">1.4.</span> <span class="nav-text">用select处理带外数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#用select来解决socket中的多客户问题"><span class="nav-number">1.5.</span> <span class="nav-text">用select来解决socket中的多客户问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#select总结："><span class="nav-number">1.6.</span> <span class="nav-text">select总结：</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">as3522</span>
+
+  
+</div>
+
+
+  <div class="powered-by">个人网站 <a class="theme-link" target="_blank" href="http://www.as3522.com">as3522</a> </div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">By-as3522 </div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
