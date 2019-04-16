@@ -81,18 +81,18 @@
 
 
 
-<meta name="description" content="编译代码时，会进程接触makefile，会涉及到一些符号，由于不明白有些意思经常出现问题，在此归纳一下。 ‘@’  符号的使用   通常makefile会将其执行的命令行在执行前输出到屏幕上。如果将‘@’添加到命令行前，这个命令将不被make回显出来。   例如：@echo –compiling module—-;  // 屏幕输出 –compiling module—-         echo">
+<meta name="description" content="Windows7上开启ftp服务器功能 https://www.cnblogs.com/liangxuru/p/6148212.html">
 <meta name="keywords" content="as3522">
 <meta property="og:type" content="article">
-<meta property="og:title" content="makefile &#39;@&#39; &#39;$&#39; &#39;1828&#39; &#39;-&#39; &#39;-n &#39; &#39; $^&#39;使用小结">
-<meta property="og:url" content="http://www.tangyilong.com/2019/04/13/makefile-1828-n-使用小结/index.html">
+<meta property="og:title" content="Windows7上开启ftp服务器功能">
+<meta property="og:url" content="http://www.tangyilong.com/2019/04/13/Windows7上开启ftp服务器功能/index.html">
 <meta property="og:site_name" content="as3522">
-<meta property="og:description" content="编译代码时，会进程接触makefile，会涉及到一些符号，由于不明白有些意思经常出现问题，在此归纳一下。 ‘@’  符号的使用   通常makefile会将其执行的命令行在执行前输出到屏幕上。如果将‘@’添加到命令行前，这个命令将不被make回显出来。   例如：@echo –compiling module—-;  // 屏幕输出 –compiling module—-         echo">
+<meta property="og:description" content="Windows7上开启ftp服务器功能 https://www.cnblogs.com/liangxuru/p/6148212.html">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-04-13T06:08:43.085Z">
+<meta property="og:updated_time" content="2019-04-13T06:44:07.178Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="makefile &#39;@&#39; &#39;$&#39; &#39;1828&#39; &#39;-&#39; &#39;-n &#39; &#39; $^&#39;使用小结">
-<meta name="twitter:description" content="编译代码时，会进程接触makefile，会涉及到一些符号，由于不明白有些意思经常出现问题，在此归纳一下。 ‘@’  符号的使用   通常makefile会将其执行的命令行在执行前输出到屏幕上。如果将‘@’添加到命令行前，这个命令将不被make回显出来。   例如：@echo –compiling module—-;  // 屏幕输出 –compiling module—-         echo">
+<meta name="twitter:title" content="Windows7上开启ftp服务器功能">
+<meta name="twitter:description" content="Windows7上开启ftp服务器功能 https://www.cnblogs.com/liangxuru/p/6148212.html">
 
 
 
@@ -122,13 +122,13 @@
 
 
 
-  <link rel="canonical" href="http://www.tangyilong.com/2019/04/13/makefile-1828-n-使用小结/">
+  <link rel="canonical" href="http://www.tangyilong.com/2019/04/13/Windows7上开启ftp服务器功能/">
 
 
 
 
 
-  <title>makefile '@' '$' '1828' '-' '-n ' ' $^'使用小结 | as3522</title>
+  <title>Windows7上开启ftp服务器功能 | as3522</title>
   
 
 
@@ -271,7 +271,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.tangyilong.com/2019/04/13/makefile-1828-n-使用小结/">
+    <link itemprop="mainEntityOfPage" href="http://www.tangyilong.com/2019/04/13/Windows7上开启ftp服务器功能/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="as3522">
@@ -288,7 +288,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">makefile '@' '$' '1828' '-' '-n ' ' $^'使用小结</h1>
+          <h1 class="post-title" itemprop="name headline">Windows7上开启ftp服务器功能</h1>
         
 
         <div class="post-meta">
@@ -300,7 +300,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-13T14:07:04+08:00">
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-13T14:43:10+08:00">
                 2019-04-13
               </time>
             
@@ -338,22 +338,8 @@
       
 
       
-        <p>编译代码时，会进程接触makefile，会涉及到一些符号，由于不明白有些意思经常出现问题，在此归纳一下。</p>
-<p>‘@’  符号的使用<br>   通常makefile会将其执行的命令行在执行前输出到屏幕上。如果将‘@’添加到命令行前，这个命令将不被make回显出来。<br>   例如：@echo –compiling module—-;  // 屏幕输出 –compiling module—-<br>         echo –compiling module—-;  // 没有@ 屏幕输出echo –compiling module—-    </p>
-<p>‘ - ‘ 符号的使用<br>   通常删除，创建文件如果碰到文件不存在或者已经创建，那么希望忽略掉这个错误，继续执行，就可以在命令前面添加 -，<br>   -rm dir；<br>   -mkdir aaadir；</p>
-<p><code>$</code>  符号的使用<br>   美元符号<code>$</code>，主要扩展打开makefile中定义的变量</p>
-<p><code>$$</code>  符号的使用<br>  <code>$$</code> 符号主要扩展打开makefile中定义的shell变量</p>
-<p>例如：<br><figure class="highlight dos"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">@<span class="keyword">for</span> <span class="built_in">dir</span> <span class="keyword">in</span> $(subdirs); <span class="keyword">do</span> \</span><br><span class="line">    @<span class="built_in">echo</span> compiling $$<span class="built_in">dir</span>; \</span><br><span class="line">    $(MAKE) -C</span><br><span class="line">    <span class="built_in">dir</span>||<span class="keyword">exit</span>"</span><br><span class="line">    <span class="built_in">dir</span>||<span class="keyword">exit</span>"</span><br><span class="line">    ?"; \</span><br><span class="line"> done</span><br></pre></td></tr></table></figure></p>
-<p>以上subdir属于makefile中定义的变量，而dir则属于makefile中定义的shell变量，所有使用是使用 ‘ ​$$ ’ 而不是 ‘ $ ‘。</p>
-<p>如果make执行时，带入make参数“-n”或“–just-print”，那么其只是显示命令，但不会执行命令，这个功能很有利于我们调试我们的Makefile，看看我们书写的命令是执行起来是什么样子的或是什么顺序的。 </p>
-<p>而make参数“-s”或“–slient”则是全面禁止命令的显示。</p>
-<p>补充说明自动化变量：<br><code>$@</code> 表示规则中的目标文件集。在模式规则中，如果有多个目标，那么，”​$@”就是匹配于目标中模式定义的集合。</p>
-<p><code>$%</code> 仅当目标是函数库文件中，表示规则中的目标成员名。例如，如果一个目标是”foo.a(bar.o)”，那么，”$%”就是”bar.o”，”$@”就是”foo.a”。如果目标不是函数库文件（Unix下是[.a]，Windows下是[.lib]），那么，其值为空。</p>
-<p><code>$&lt;</code>  依赖目标中的第一个目标名字。如果依赖目标是以模式（即”%”）定义的，那么”$&lt;”将是符合模式的一系列的文件集。注意，其是一个一个取出来的。</p>
-<p><code>$?</code>  所有比目标新的依赖目标的集合。以空格分隔。</p>
-<p><code>$^</code>   所有的依赖目标的集合。以空格分隔。如果在依赖目标中有多个重复的，那个这个变量会去除重复的依赖目标，只保留一份</p>
-<hr>
-<p>原文：<a href="https://blog.csdn.net/kehyuanyu/article/details/21454789" target="_blank" rel="noopener">https://blog.csdn.net/kehyuanyu/article/details/21454789</a> </p>
+        <p>Windows7上开启ftp服务器功能</p>
+<p><a href="https://www.cnblogs.com/liangxuru/p/6148212.html" target="_blank" rel="noopener">https://www.cnblogs.com/liangxuru/p/6148212.html</a></p>
 
       
     </div>
@@ -378,8 +364,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/02/20/Hexo插入图片-不需要插件-超简单/" rel="next" title="Hexo不显示图片,不需要插件,超简单">
-                <i class="fa fa-chevron-left"></i> Hexo不显示图片,不需要插件,超简单
+              <a href="/2019/04/13/深入理解strncpy这个函数/" rel="next" title="深入理解strncpy这个函数">
+                <i class="fa fa-chevron-left"></i> 深入理解strncpy这个函数
               </a>
             
           </div>
@@ -387,10 +373,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/04/13/谷歌浏览器安装插件/" rel="prev" title="谷歌浏览器安装插件">
-                谷歌浏览器安装插件 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>

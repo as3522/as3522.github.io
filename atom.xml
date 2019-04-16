@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://www.tangyilong.com/"/>
-  <updated>2019-04-13T06:22:45.864Z</updated>
+  <updated>2019-04-13T06:44:07.178Z</updated>
   <id>http://www.tangyilong.com/</id>
   
   <author>
@@ -15,6 +15,71 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Windows7上开启ftp服务器功能</title>
+    <link href="http://www.tangyilong.com/2019/04/13/Windows7%E4%B8%8A%E5%BC%80%E5%90%AFftp%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%8A%9F%E8%83%BD/"/>
+    <id>http://www.tangyilong.com/2019/04/13/Windows7上开启ftp服务器功能/</id>
+    <published>2019-04-13T06:43:10.000Z</published>
+    <updated>2019-04-13T06:44:07.178Z</updated>
+    
+    <content type="html"><![CDATA[<p>Windows7上开启ftp服务器功能</p><p><a href="https://www.cnblogs.com/liangxuru/p/6148212.html" target="_blank" rel="noopener">https://www.cnblogs.com/liangxuru/p/6148212.html</a></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;Windows7上开启ftp服务器功能&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://www.cnblogs.com/liangxuru/p/6148212.html&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://www.cnblogs.
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>深入理解strncpy这个函数</title>
+    <link href="http://www.tangyilong.com/2019/04/13/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3strncpy%E8%BF%99%E4%B8%AA%E5%87%BD%E6%95%B0/"/>
+    <id>http://www.tangyilong.com/2019/04/13/深入理解strncpy这个函数/</id>
+    <published>2019-04-13T06:42:11.000Z</published>
+    <updated>2019-04-13T06:42:39.423Z</updated>
+    
+    <content type="html"><![CDATA[<p><a href="https://blog.csdn.net/weibo1230123/article/details/80382614" target="_blank" rel="noopener">https://blog.csdn.net/weibo1230123/article/details/80382614</a> </p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;&lt;a href=&quot;https://blog.csdn.net/weibo1230123/article/details/80382614&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://blog.csdn.net/weibo1230123/a
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>ioctl()分析——从用户空间到设备驱动</title>
+    <link href="http://www.tangyilong.com/2019/04/13/ioctl-%E5%88%86%E6%9E%90%E2%80%94%E2%80%94%E4%BB%8E%E7%94%A8%E6%88%B7%E7%A9%BA%E9%97%B4%E5%88%B0%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/"/>
+    <id>http://www.tangyilong.com/2019/04/13/ioctl-分析——从用户空间到设备驱动/</id>
+    <published>2019-04-13T06:40:52.000Z</published>
+    <updated>2019-04-13T06:41:28.687Z</updated>
+    
+    <content type="html"><![CDATA[<p>ioctl()分析——从用户空间到设备驱动</p><p><a href="https://blog.csdn.net/zifehng/article/details/59576539" target="_blank" rel="noopener">https://blog.csdn.net/zifehng/article/details/59576539</a> </p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;ioctl()分析——从用户空间到设备驱动&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://blog.csdn.net/zifehng/article/details/59576539&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://blog
+      
+    
+    </summary>
+    
+    
+  </entry>
   
   <entry>
     <title>字母对应的ASCII码和CTRL加字母的</title>
@@ -380,69 +445,6 @@
         &lt;p&gt;在ANSI C中，这些宏的定义位于stdarg.h中，典型的实现如下：&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;typedef char *va_list;&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;va_start宏&lt;/strong&gt;，获取可变参数列表的第一个参数的地址（li
-      
-    
-    </summary>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>struct-iovec</title>
-    <link href="http://www.tangyilong.com/2019/02/20/struct-iovec/"/>
-    <id>http://www.tangyilong.com/2019/02/20/struct-iovec/</id>
-    <published>2019-02-20T11:20:45.000Z</published>
-    <updated>2019-02-20T11:21:17.285Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="struct-iovec-结构体定义与使用"><a href="#struct-iovec-结构体定义与使用" class="headerlink" title="struct iovec 结构体定义与使用"></a>struct iovec 结构体定义与使用</h1><p>1 .struct iovec定义了一个向量元素。通常，这个结构用作一个多元素的数组。对于每一个传输的元素，指针成员iov_base指向一个缓冲区，这个缓冲区是存放的是readv所接收的数据或是writev将要发送的数据。成员iov_len在各种情况下分别确定了接收的最大长度以及实际写入的长度。</p><p>2 .在这里，主要介绍readv和writev两个函数；readv(2)与writev(2)函数都使用一个I/O向量的概念；在头文件中定义了struct iovec 结构体，其定义和各成员如下：</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">iovec</span> &#123;</span></span><br><span class="line"> <span class="comment">/* Starting address (内存起始地址）*/</span></span><br><span class="line">   <span class="keyword">void</span>  *iov_base;   </span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Number of bytes to transfer（这块内存长度） */</span></span><br><span class="line">   <span class="keyword">size_t</span> iov_len;    </span><br><span class="line">       &#125;;</span><br></pre></td></tr></table></figure><p>linux中使用这样的结构体变量作为参数的函数很多，常见的有：</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">头文件：</span><br><span class="line"> <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/uio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"> <span class="keyword">ssize_t</span> readv(<span class="keyword">int</span> fd, <span class="keyword">const</span> struct iovec *iov, <span class="keyword">int</span> iovcnt);</span><br><span class="line"></span><br><span class="line"> <span class="keyword">ssize_t</span> writev(<span class="keyword">int</span> fd, <span class="keyword">const</span> struct iovec *iov, <span class="keyword">int</span> iovcnt);</span><br><span class="line"></span><br><span class="line"> <span class="keyword">ssize_t</span> preadv(<span class="keyword">int</span> fd, <span class="keyword">const</span> struct iovec *iov, <span class="keyword">int</span> iovcnt, <span class="keyword">off_t</span> offset);</span><br><span class="line"> <span class="keyword">ssize_t</span> pwritev(<span class="keyword">int</span> fd, <span class="keyword">const</span> struct iovec *iov, <span class="keyword">int</span> iovcnt,<span class="keyword">off_t</span> offset);     </span><br><span class="line"> <span class="keyword">ssize_t</span> preadv2(<span class="keyword">int</span> fd, <span class="keyword">const</span> struct iovec *iov, <span class="keyword">int</span> iovcnt, <span class="keyword">off_t</span> offset, <span class="keyword">int</span> flags);</span><br><span class="line"> <span class="keyword">ssize_t</span> pwritev2(<span class="keyword">int</span> fd, <span class="keyword">const</span> struct iovec *iov, <span class="keyword">int</span> iovcnt, <span class="keyword">off_t</span> offset, <span class="keyword">int</span> flags);</span><br></pre></td></tr></table></figure><p>readv和writev作为read与write函数的衍生函数，在一个原子操作中读取或是写入多个缓冲区。readv和writev函数中的各参数的含义如下：<br>函数原型：</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ssize_t</span> readv(<span class="keyword">int</span> fd, <span class="keyword">const</span> struct iovec *iov, <span class="keyword">int</span> iovcnt);</span><br><span class="line"></span><br><span class="line"><span class="keyword">ssize_t</span> writev(<span class="keyword">int</span> fd, <span class="keyword">const</span> struct iovec *iov, <span class="keyword">int</span> iovcnt);</span><br></pre></td></tr></table></figure><p>这两个函数需要三个参数：<br>   要在其上进行读或是写的文件描述符fd<br>   读或写所用的I/O向量(vector)<br>   要使用的向量元素个数(count)<br>这些函数的返回值是readv所读取的字节数或是writev所写入的字节数。如果有错误发生，就会返回-1，而errno存有错误代码。注意，也其他I/O函数类似，可以返回错误码EINTR来表明他被一个信号所中断。</p><p>3 .示例代码1<br>代码的功能是：向终端（屏幕）打印字符串：i am happy.</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*************************************************************************</span></span><br><span class="line"><span class="comment"> * File Name: struct_iovec.c</span></span><br><span class="line"><span class="comment"> * Author:    The answer</span></span><br><span class="line"><span class="comment"> * Function:  Other        </span></span><br><span class="line"><span class="comment"> * Mail:      2412799512@qq.com </span></span><br><span class="line"><span class="comment"> * Created Time: 2017年06月17日 星期六 20时36分21秒</span></span><br><span class="line"><span class="comment">*************************************************************************/</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;sys/uio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">sys_err</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *ptr,<span class="keyword">int</span> num)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    perror(ptr);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc,<span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">iovec</span> <span class="title">iov</span>[3];</span></span><br><span class="line">    <span class="keyword">char</span> *p1 = <span class="string">"i"</span>;</span><br><span class="line">    <span class="keyword">char</span> *p2 = <span class="string">" am"</span>;</span><br><span class="line">    <span class="keyword">char</span> *p3 = <span class="string">" happy.\n"</span>;</span><br><span class="line">    iov[<span class="number">0</span>].iov_base = p1;</span><br><span class="line">    iov[<span class="number">0</span>].iov_len = <span class="built_in">strlen</span>(p1);</span><br><span class="line"></span><br><span class="line">    iov[<span class="number">1</span>].iov_base = p2;</span><br><span class="line">    iov[<span class="number">1</span>].iov_len = <span class="built_in">strlen</span>(p2);</span><br><span class="line">    </span><br><span class="line">    iov[<span class="number">2</span>].iov_base = p3;</span><br><span class="line">    iov[<span class="number">2</span>].iov_len = <span class="built_in">strlen</span>(p3);</span><br><span class="line">    <span class="keyword">ssize_t</span> ret = writev(STDOUT_FILENO,iov,<span class="number">3</span>);</span><br><span class="line">    <span class="keyword">if</span>(ret &lt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        sys_err(<span class="string">"writev"</span>,<span class="number">-1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><hr><p>原文：<a href="https://blog.csdn.net/lixiaogang_theanswer/article/details/73385643" target="_blank" rel="noopener">https://blog.csdn.net/lixiaogang_theanswer/article/details/73385643</a> </p>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;h1 id=&quot;struct-iovec-结构体定义与使用&quot;&gt;&lt;a href=&quot;#struct-iovec-结构体定义与使用&quot; class=&quot;headerlink&quot; title=&quot;struct iovec 结构体定义与使用&quot;&gt;&lt;/a&gt;struct iovec 结构体定义与使用&lt;/
-      
-    
-    </summary>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>source_insight的查找功能</title>
-    <link href="http://www.tangyilong.com/2019/02/20/source-insight%E7%9A%84%E6%9F%A5%E6%89%BE%E5%8A%9F%E8%83%BD/"/>
-    <id>http://www.tangyilong.com/2019/02/20/source-insight的查找功能/</id>
-    <published>2019-02-20T11:19:01.000Z</published>
-    <updated>2019-02-20T11:19:43.224Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="source-insight的查找功能"><a href="#source-insight的查找功能" class="headerlink" title="source insight的查找功能"></a>source insight的查找功能</h1><p>sourceinsight是一款很好的代码阅读编辑工具，方便对project管理，方便程序的阅读和编辑。查找功能使用十分频繁，选项较多，与其它软件的查找功能也类似，下面对英文版的查找功能，做简单说明：</p><p>查找参数：<br>whole wordsonly :                 全字匹配查找<br>casesensitive  ：                  区分大小写<br>projectwide  :                        项目内查找<br>includesubdirectories :          包含子目录查找<br>skip inactivecode :               跳过无效代码查找<br>skipcomments  :                  跳过注释查找<br>search onlycomments :       仅在注释在查找</p><h3 id="Loopup-References"><a href="#Loopup-References" class="headerlink" title="Loopup References"></a>Loopup References</h3><p>我们最常用的一种查找方式是选择<strong>Search/Lookup References</strong>或按Ctrl+/组合键再或者鼠标点 R按钮，在弹出的Loopup References窗口进行查找操作。 在SearchMethod中有四种可选的查找方式：<strong>Simple String、Regular Expression、 KeywordExpression和Look Up Reference</strong>。其中<strong>SimpleString是最普通的查找方式，可以查找文件中出现的任意字符或字符，甚至可以查找 _upap || u这样的字符串</strong>，但是在工程较大时，查找过程会较慢。<strong>RegularExpression查找方式，正则表达式用来做搜索</strong>。 Keyword Expression和Look UpReference查找的结果基本相同，但是显示方式略有差异。这两种方式都是使用SI预先建立的数据库，查找起来速度相当快。但通常这种速度只对在查找标识符时有明显效果。对于像函数名，变量名等的查找，强烈建议使用这两种方式进行查找。</p><h3 id="SearchFiles"><a href="#SearchFiles" class="headerlink" title="SearchFiles"></a>SearchFiles</h3><p>选择Search/Search Files或按Ctrl+Shift+F组合键，在弹出的Search Files窗口进行查找操作。在File Name框中可以填入文件名或文件夹。注意当要查询的文件夹双包含子文件夹时，可以勾选Options中的IncludeSubdirectiories，实现对各层文件的递归搜索。</p><h3 id="SearchProject"><a href="#SearchProject" class="headerlink" title="SearchProject"></a>SearchProject</h3><p>选择Search/Search Project，在弹出的Search Project窗口进行查找操作。操作与LoopupReferences几乎完全一致，它们各自保存上次搜索的配置。</p><h3 id="几个较常用的快捷键"><a href="#几个较常用的快捷键" class="headerlink" title="几个较常用的快捷键"></a>几个较常用的快捷键</h3><p>默认情况下，SI已经定义了很多非常实用的快捷键：<br>F5<br>指定行号，实现行跳转，在遇到编译错误的时候，能特别方便的找到出错行。<br>Shift+F8<br>高亮显示指定标识，快速浏览标识的使用情况。<br>Ctrl+鼠标点击标识<br>直接跳转至标识定义处。<br>Ctrl+F<br>本文件内查找。<br>F3<br>本文件查找结果的上一个。<br>F4<br>本文件查找结果的下一个。<br>F7<br>打开Browse Project Symbols窗口，快速浏览工程内标识定义。<br>Ctrl+M<br>创建或查找书签，方便下次找回此位置。 </p>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;h1 id=&quot;source-insight的查找功能&quot;&gt;&lt;a href=&quot;#source-insight的查找功能&quot; class=&quot;headerlink&quot; title=&quot;source insight的查找功能&quot;&gt;&lt;/a&gt;source insight的查找功能&lt;/h1&gt;&lt;p&gt;so
-      
-    
-    </summary>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>大小端和结构体位域</title>
-    <link href="http://www.tangyilong.com/2019/01/30/%E5%A4%A7%E5%B0%8F%E7%AB%AF%E5%92%8C%E7%BB%93%E6%9E%84%E4%BD%93%E4%BD%8D%E5%9F%9F/"/>
-    <id>http://www.tangyilong.com/2019/01/30/大小端和结构体位域/</id>
-    <published>2019-01-30T09:07:32.000Z</published>
-    <updated>2019-01-30T09:08:02.212Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="大小端和结构体位域"><a href="#大小端和结构体位域" class="headerlink" title="大小端和结构体位域"></a>大小端和结构体位域</h1><h2 id="大小端"><a href="#大小端" class="headerlink" title="大小端"></a>大小端</h2><h3 id="什么是大小端"><a href="#什么是大小端" class="headerlink" title="什么是大小端"></a>什么是大小端</h3><p>Big-Endian和Little-Endian的定义如下：<br>1) Little-Endian就是低位字节排放在内存的低地址端，高位字节排放在内存的高地址端。<br>2) Big-Endian就是高位字节排放在内存的低地址端，低位字节排放在内存的高地址端。<br>举一个例子，比如数字0x12 34 56 78在内存中的表示形式为：<br><strong>1)大端模式：</strong><br>低地址 —————–&gt; 高地址<br>0x12  |  0x34  |  0x56  |  0x78<br><strong>2)小端模式：</strong><br>低地址 ——————&gt; 高地址<br>0x78  |  0x56  |  0x34  |  0x12<br><strong>可见，大端模式和字符串的存储模式类似。</strong><br><strong>3)下面是两个具体例子：</strong><br>16bit宽的数0x1234在Little-endian模式（以及Big-endian模式）CPU内存中的存放方式（假设从地址0x4000开始存放）为：</p><table><thead><tr><th>内存地址</th><th>小端模式存放内容</th><th>大端模式存放内容</th></tr></thead><tbody><tr><td><strong>0x4000</strong></td><td><strong>0x34</strong></td><td><strong>0x12</strong></td></tr><tr><td><strong>0x4001</strong></td><td><strong>0x12</strong></td><td><strong>0x34</strong></td></tr></tbody></table><p><strong>32bit宽的数0x12345678在Little-endian模式以及Big-endian模式）CPU内存中的存放方式（假设从地址0x4000开始存放）为：</strong></p><table><thead><tr><th><strong>内存地址</strong></th><th><strong>小端模式存放内容</strong></th><th><strong>大端模式存放内容</strong></th></tr></thead><tbody><tr><td><strong>0x4000</strong></td><td><strong>0x78</strong></td><td><strong>0x12</strong></td></tr><tr><td><strong>0x4001</strong></td><td><strong>0x56</strong></td><td><strong>0x34</strong></td></tr><tr><td><strong>0x4002</strong></td><td><strong>0x34</strong></td><td><strong>0x56</strong></td></tr><tr><td><strong>0x4003</strong></td><td><strong>0x12</strong></td><td><strong>0x78</strong></td></tr></tbody></table><p> <strong>4)大端小端没有谁优谁劣，各自优势便是对方劣势：</strong><br>大端：容易判断正负（offset(0)）；<br><strong>ps:通常情况下，ARM是大端模式；X86是小端模式；</strong><br><strong>小端：易于进行数据类型转换，1、2、4字节的存储方式一样。</strong></p><h3 id="判断大小端"><a href="#判断大小端" class="headerlink" title="判断大小端"></a>判断大小端</h3><p> <strong>可以使用程序判断CPU模式是大端还是小端</strong></p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> a=<span class="number">0x1234</span>;</span><br><span class="line"><span class="keyword">char</span> b=*(<span class="keyword">char</span>*)&amp;a;</span><br><span class="line"><span class="keyword">if</span>(b==<span class="number">0x12</span>)</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">"big end\n"</span>);</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line"><span class="built_in">printf</span>(<span class="string">"little end\n"</span>);</span><br><span class="line"><span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><h2 id="位域"><a href="#位域" class="headerlink" title="位域"></a>位域</h2><p>有些信息在存储时，并不需要占用一个完整的字节， 而只需占几个或一个二进制位。例如在存放一个开关量时，只有0和1 两种状态， 用一位二进位即可。为了节省存储空间，并使处理简便，Ｃ语言又提供了一种数据结构，称为“位域”或“位段”。所谓“位域”是把一个字节中的二进位划分为几 个不同的区域，并说明每个区域的位数。每个域有一个域名，允许在程序中按域名进行操作。 这样就可以把几个不同的对象用一个字节的二进制位域来表示。<strong>位段成员必须声明为int、unsigned int或signed int类型（short char long）。</strong></p><p>一、位域的定义和位域变量的说明位域定义与结构定义相仿，其形式为：     </p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> 位域结构名     </span></span><br><span class="line"><span class="class">&#123;</span> 位域列表 &#125;;</span><br></pre></td></tr></table></figure><p>其中位域列表的形式为： 类型说明符 位域名：位域长度<br>例如：     </p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">bs</span>     </span></span><br><span class="line"><span class="class">&#123;</span>     </span><br><span class="line"><span class="keyword">int</span> a:<span class="number">8</span>;     </span><br><span class="line"><span class="keyword">int</span> b:<span class="number">2</span>;     </span><br><span class="line"><span class="keyword">int</span> c:<span class="number">6</span>;     </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure><p>位域变量的说明与结构变量说明的方式相同。 可采用先定义后说明，同时定义说明或者直接说明这三种方式。</p><ol><li>如果一个字节所剩空间不够存放另一位域时，应从下一单元起存放该位域。也可以有意使某位域从下一单元开始。例如：     </li></ol><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">bs</span>     </span></span><br><span class="line"><span class="class">&#123;</span>     </span><br><span class="line"><span class="keyword">unsigned</span> a:<span class="number">4</span>     </span><br><span class="line"><span class="keyword">unsigned</span> :<span class="number">0</span> <span class="comment">/*空域*/</span>     </span><br><span class="line"><span class="keyword">unsigned</span> b:<span class="number">4</span> <span class="comment">/*从下一单元开始存放*/</span>     </span><br><span class="line"><span class="keyword">unsigned</span> c:<span class="number">4</span>     </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>这个位域定义中，a占第一字节的4位，后4位填0表示不使用，b从第二字节开始，占用4位，c占用4位。     </p><p>2.位域的长度不能大于数据类型本身的长度，比如int类型就能超过32位二进位。</p><p><em>3.</em> 位域可以无位域名，这时它只用来作填充或调整位置。无名的位域是不能使用的。例如：     </p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">k</span>     </span></span><br><span class="line"><span class="class">&#123;</span>     </span><br><span class="line"><span class="keyword">int</span> a:<span class="number">1</span>     </span><br><span class="line"><span class="keyword">int</span> :<span class="number">2</span> <span class="comment">/*该2位不能使用*/</span>     </span><br><span class="line"><span class="keyword">int</span> b:<span class="number">3</span>     </span><br><span class="line"><span class="keyword">int</span> c:<span class="number">2</span>     </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure><p>从以上分析可以看出，位域在本质上就是一种结构类型， 不过其成员是按二进位分配的。</p><p>二、位域的使用位域的使用和结构成员的使用相同，其一般形式为： 位域变量名.位域名 位域允许用各种格式输出。     </p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">bs</span>     </span></span><br><span class="line"><span class="class">&#123;</span>     </span><br><span class="line">    <span class="keyword">unsigned</span> a:<span class="number">1</span>;     </span><br><span class="line">    <span class="keyword">unsigned</span> b:<span class="number">3</span>;     </span><br><span class="line">    <span class="keyword">unsigned</span> c:<span class="number">4</span>;     </span><br><span class="line">&#125; bit,*pbit;     </span><br><span class="line">bit.a=<span class="number">1</span>;     </span><br><span class="line">bit.b=<span class="number">7</span>; <span class="comment">//注意：位域的赋值不能超过该域所能表示的最大值，如b只有3位，能表示的最大数为7，若赋为8，就会出错   </span></span><br><span class="line">bit.c=<span class="number">15</span>;</span><br></pre></td></tr></table></figure><p>C99规定int、unsigned int和bool可以作为位域类型，但编译器几乎都对此作了扩展，<br>允许其它类型类型的存在。<br>使用位域的主要目的是压缩存储，其大致规则为：</p><p>1) 如果相邻位域字段的类型相同，且其位宽之和小于类型的sizeof大小，则后面的字段将紧邻前一个字段存储，直到不能容纳为止<br>2) 如果相邻位域字段的类型相同，但其位宽之和大于类型的sizeof大小，则后面的字段将从新的存储单元开始，其偏移量为其类型大小的整数倍；<br>3) 如果相邻的位域字段的类型不同，则各编译器的具体实现有差异，VC6采取不压缩方式，Dev-C++，GCC采取压缩方式；<br>4) 如果位域字段之间穿插着非位域字段，则不进行压缩；<br>5) 整个结构体的总大小为最宽基本类型成员大小的整数倍。</p>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;h1 id=&quot;大小端和结构体位域&quot;&gt;&lt;a href=&quot;#大小端和结构体位域&quot; class=&quot;headerlink&quot; title=&quot;大小端和结构体位域&quot;&gt;&lt;/a&gt;大小端和结构体位域&lt;/h1&gt;&lt;h2 id=&quot;大小端&quot;&gt;&lt;a href=&quot;#大小端&quot; class=&quot;headerlink
       
     
     </summary>
