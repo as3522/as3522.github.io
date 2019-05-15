@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="as3522" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="strace是个功能强大的Linux调试分析诊断工具，可用于跟踪程序执行时进程系统调用(system call)和所接收的信号，尤其是针对源码不可读或源码无法再编译的程序。    在Linux系统中，用户程序运行在一个沙箱(sandbox)里，用户进程不能直接访问计算机硬件设备。当进程需要访问硬件设备(如读取磁盘文件或接收网络数据等)时，必须由用户态模式切换至内核态模式，通过系统调用访问硬件设备">
+<meta name="keywords" content="as3522">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux_strace">
+<meta property="og:url" content="http://www.tangyilong.com/2019/05/15/Linux-strace/index.html">
+<meta property="og:site_name" content="as3522">
+<meta property="og:description" content="strace是个功能强大的Linux调试分析诊断工具，可用于跟踪程序执行时进程系统调用(system call)和所接收的信号，尤其是针对源码不可读或源码无法再编译的程序。    在Linux系统中，用户程序运行在一个沙箱(sandbox)里，用户进程不能直接访问计算机硬件设备。当进程需要访问硬件设备(如读取磁盘文件或接收网络数据等)时，必须由用户态模式切换至内核态模式，通过系统调用访问硬件设备">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-05-15T07:19:18.735Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Linux_strace">
+<meta name="twitter:description" content="strace是个功能强大的Linux调试分析诊断工具，可用于跟踪程序执行时进程系统调用(system call)和所接收的信号，尤其是针对源码不可读或源码无法再编译的程序。    在Linux系统中，用户程序运行在一个沙箱(sandbox)里，用户进程不能直接访问计算机硬件设备。当进程需要访问硬件设备(如读取磁盘文件或接收网络数据等)时，必须由用户态模式切换至内核态模式，通过系统调用访问硬件设备">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.tangyilong.com/2019/05/15/Linux-strace/">
+
+
+
+
+
+  <title>Linux_strace | as3522</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+
+   <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;"></canvas> 
+      <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+	     <script type="text/javascript" src="/js/src/fireworks.js"></script>
+
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">as3522</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.tangyilong.com/2019/05/15/Linux-strace/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="as3522">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="as3522">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Linux_strace</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-15T14:30:04+08:00">
+                2019-05-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p> strace是个功能强大的Linux调试分析诊断工具，可用于跟踪程序执行时进程系统调用(system call)和所接收的信号，尤其是针对源码不可读或源码无法再编译的程序。</p>
+<p>   在Linux系统中，用户程序运行在一个沙箱(sandbox)里，用户进程不能直接访问计算机硬件设备。当进程需要访问硬件设备(如读取磁盘文件或接收网络数据等)时，必须由用户态模式切换至内核态模式，通过系统调用访问硬件设备。strace可跟踪进程产生的系统调用，包括参数、返回值和执行所消耗的时间。若strace没有任何输出，并不代表此时进程发生阻塞；也可能程序进程正在自己的沙箱里执行某些不需要与系统其它部分发生通信的事情。strace从内核接收信息，且无需以任何特殊方式来构建内核。</p>
+<p> strace命令格式如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">strace [-dffhiqrtttTvVxx] [-a column] [-e expr] [-o file] [-p pid] [-s strsize] [-u username] [-E var=val] [<span class="built_in">command</span> [arg ...]] 或</span><br><span class="line"></span><br><span class="line">strace -c [-e expr] [-O overhead] [-S sortby] [-E var=val] [<span class="built_in">command</span> [arg ...]]</span><br></pre></td></tr></table></figure>
+<p>   通过不同的选项开关，strace提供非常丰富的跟踪功能。最简单的应用是，跟踪可执行程序运行时的整个生命周期，将所调用的系统调用的名称、参数和返回值输出到标准错误输出stderr(即屏幕)或-o选项所指定的文件。<font color="#0099FF">注意，命令(command)必须位于选项列表之后。</font></p>
+<p>   详细的strace命令选项列举如下：</p>
+<table>
+<thead>
+<tr>
+<th><strong>选项</strong></th>
+<th><strong>含义</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-c</td>
+<td>统计和报告每个系统调用所执行的时间、调用次数和出错次数等</td>
+</tr>
+<tr>
+<td>-d</td>
+<td>输出strace关于标准错误的调试信息</td>
+</tr>
+<tr>
+<td>-f</td>
+<td>跟踪当前进程及其通过fork系统调用所创建的子进程</td>
+</tr>
+<tr>
+<td>-ff</td>
+<td>常与-o选项联合使用，不同进程(子进程)的跟踪结果分别输出到相应的filename. pid文件中，pid是各个进程号</td>
+</tr>
+<tr>
+<td>-F</td>
+<td>尝试跟踪vfork系统调用。否则即使打开-f选项，vfork也不会被跟踪</td>
+</tr>
+<tr>
+<td>-h</td>
+<td>显示帮助信息</td>
+</tr>
+<tr>
+<td>-i</td>
+<td>显示发生系统调用时的指令指针(IP)寄存器值</td>
+</tr>
+<tr>
+<td>-q</td>
+<td>抑制(禁止输出)关于结合(attaching)、脱离(detaching)的消息。当输出重定向到一个文件时，自动抑制此类消息</td>
+</tr>
+<tr>
+<td>-r</td>
+<td>显示每个系统调用发生时的相对时间戳，即连续的系统调用起点之间的时间差</td>
+</tr>
+<tr>
+<td>-t-tt-ttt</td>
+<td>-t在每行输出前添加绝对时间戳(当前时钟)信息，精确到秒级-tt在每行输出前添加绝对时间戳信息，精确到微秒级-ttt在每行输出前添加相对时间信息，格式为”自纪元时间起经历的秒数.微秒数”</td>
+</tr>
+<tr>
+<td>-T</td>
+<td>显示每个系统调用所耗费的时间，其时间开销在输出行最右侧的尖括号内</td>
+</tr>
+<tr>
+<td>-V</td>
+<td>显示strace的版本信息</td>
+</tr>
+<tr>
+<td>-v</td>
+<td>冗余显示模式：显示系统调用中argv[]、envp[]、stat、termio(s)等数组/结构体参数所有的元素/成员内容。这些数组/结构体因使用频繁，默认仅显示其元素/成员的合理子集</td>
+</tr>
+<tr>
+<td>-x</td>
+<td>以16进制形式显示非标准(non-ascii)字符串，如”/x08”。默认为8进制，如”/10”</td>
+</tr>
+<tr>
+<td>-xx</td>
+<td>以16进制形式显示所有字符串</td>
+</tr>
+<tr>
+<td>-a column</td>
+<td>设置显示系统调用返回值的列位置，默认为40(从0开始)，即”=”出现在第40列</td>
+</tr>
+<tr>
+<td>-e expr</td>
+<td>指定一个表达式，用于限定跟踪哪些事件及如何跟踪。其格式为[qualifier=][!]all或[qualifier=][!]value1[,value2]…。qualifier取值为trace(默认)、abbrev、verbose、raw、signal、read或write。value是用于限定的符号(包括all和none)或数字。感叹号为否定符号，如-eopen等价于-e trace=open，表示只跟踪open系统调用；而-e trace=!open表示跟踪除open外的其他系统调用。注意某些shell用!表示执行历史记录里的命令，此时可能借助引号、转义符号(/)。-e trace=set：跟踪指定的系统调用列表，如-e trace=open,close,read,write表示只跟踪这四种系统调用。默认为set=all。-e trace=file：跟踪以指定文件名做参数的所有系统调用。-e trace=process：跟踪涉及进程管理的所有系统调用，可用于观察进程的fork、wait和exec阶段。-e trace=network：跟踪网络相关的所有系统调用。-e strace=signal：跟踪所有与系统信号相关的系统调用。-e trace=ipc：跟踪所有与进程间通信有关的系统调用。-e abbrev=set：指定哪些系统调用中的大型数组或结构体内容缩减显示，如strace -e abbrev=execve ./test仅显示execve调用中argv[]和envp[]的部分内容。默认为abbrev=all， abbrev=none等价于-v选项。-e verbose=set：指定哪些系统调用中的大型数组或结构体内容完整显示，集合外的调用其数组或结构体显示为地址。默认为verbose=all。-e raw=set：指定哪些系统调用中的参数以原始未解码的形式(即16进制)显示。当用户不信任strace解码或需要了解参数实际数值时有用。-e signal=set：跟踪指定的信号列表，默认为signal=all。如signal=!SIGIO(或signal=!io)表示不跟踪SIGIO信号。-e read=set：以16进制和ASCII码对照形式显示从指定文件描述符中读出的所有数据，如-e read=3,5可观察文件描述符3和5上的输入动作。该选项独立于系统调用read的常规跟踪(由-e trace=read选项控制)。-e write=set：以16进制和ASCII码对照形式显示写入指定文件描述符的所有数据。</td>
+</tr>
+<tr>
+<td>-o file</td>
+<td>strace输出信息默认显示到标准错误输出，该选项将输出信息写入文件file中。以下两条命令等效：strace -c -o test.txt ./teststrace -c ./test 2&gt;test.txt</td>
+</tr>
+<tr>
+<td>-O overhead</td>
+<td>Set the overhead for tracing system calls to overhead microseconds. This is useful for overriding the default heuristic for guessing how much time is spent in mere measuring when timing system calls using the -c option. The acuracy of the heuristic can be gauged by timing a given program run without tracing (使用time命令) and comparing the accumulated system call time to the total produced using -c.</td>
+</tr>
+<tr>
+<td>-p pid</td>
+<td>指定待跟踪的进程号(pid)，可用Ctrl-C终止跟踪而被跟踪进程继续运行。可指定多达32个(-p pid)选项以同时跟踪多个进程。该选项常用于调试后台进程</td>
+</tr>
+<tr>
+<td>-s strsize</td>
+<td>限制每行输出中字符串(如read参数)的最大显示长度，默认32字节。但文件名总是完整显示</td>
+</tr>
+<tr>
+<td>-S sortby</td>
+<td>按指定规则对-c选项的输出直方图进行排序。sortby取值可为time、calls、name和nothing(默认time)</td>
+</tr>
+<tr>
+<td>-u username</td>
+<td>用指定用户的UID和/或GID身份运行待跟踪程序</td>
+</tr>
+<tr>
+<td>-E var=val</td>
+<td>将var=val放入命令的环境变量列表</td>
+</tr>
+<tr>
+<td>-E var</td>
+<td>从命令的环境变量列表中移除var</td>
+</tr>
+</tbody>
+</table>
+<p>   例如，命令strace -o out.txt -T -tt -e trace=all -p 2899表示跟踪2899进程的所有系统调用，并统计系统调用的时间开销，以及调用起始时间(以可视化的时分秒格式显示)，最后将记录结果存入out.txt文件。</p>
+<hr>
+<p><a href="https://www.cnblogs.com/clover-toeic/p/3738156.html" target="_blank" rel="noopener">参(抄)考(袭)资料</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/05/14/lsof命令/" rel="next" title="lsof命令">
+                <i class="fa fa-chevron-left"></i> lsof命令
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/05/15/MarkDown语法/" rel="prev" title="MarkDown语法">
+                MarkDown语法 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.gif" alt="as3522">
+            
+              <p class="site-author-name" itemprop="name">as3522</p>
+              <p class="site-description motion-element" itemprop="description">personal blog</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">35</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">as3522</span>
+
+  
+</div>
+
+
+  <div class="powered-by">个人网站 <a class="theme-link" target="_blank" href="http://www.as3522.com">as3522</a> </div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">By-as3522 </div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
