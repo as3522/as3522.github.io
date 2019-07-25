@@ -81,18 +81,18 @@
 
 
 
-<meta name="description" content="在GNU系统中，malloc或realloc返回的内存块地址都是8的倍数（如果是64位系统，则为16的倍数）。如果你需要更大的粒度，请使用memalign或valloc。这些函数在头文件“stdlib.h”中声明。 ​    在GNU库中，可以使用函数free释放memalign和valloc返回的内存块。但无法在BSD系统中使用，而且BSD系统中并未提供释放这样的内存块的途径。 ​    函">
+<meta name="description" content="Linux下unlink函数的使用一、头文件 #include&amp;lt;unistd.h&amp;gt; 二、函数原型int unlink(const char *pathname); 三、函数介绍unlink()函数功能即为删除文件。执行unlink()函数会删除所给参数指定的文件。 注意： 执行unlink()函数并不一定会真正的删除文件，它先会检查文件系统中此文件的连接数是否为1，如果不是1说明此文件">
 <meta name="keywords" content="as3522">
 <meta property="og:type" content="article">
-<meta property="og:title" content="linux memalign,valloc函数">
-<meta property="og:url" content="http://www.tangyilong.com/2019/02/20/linux-memalign-valloc函数/index.html">
+<meta property="og:title" content="linux-unlink">
+<meta property="og:url" content="http://www.tangyilong.com/2019/07/01/linux-unlink/index.html">
 <meta property="og:site_name" content="as3522">
-<meta property="og:description" content="在GNU系统中，malloc或realloc返回的内存块地址都是8的倍数（如果是64位系统，则为16的倍数）。如果你需要更大的粒度，请使用memalign或valloc。这些函数在头文件“stdlib.h”中声明。 ​    在GNU库中，可以使用函数free释放memalign和valloc返回的内存块。但无法在BSD系统中使用，而且BSD系统中并未提供释放这样的内存块的途径。 ​    函">
+<meta property="og:description" content="Linux下unlink函数的使用一、头文件 #include&amp;lt;unistd.h&amp;gt; 二、函数原型int unlink(const char *pathname); 三、函数介绍unlink()函数功能即为删除文件。执行unlink()函数会删除所给参数指定的文件。 注意： 执行unlink()函数并不一定会真正的删除文件，它先会检查文件系统中此文件的连接数是否为1，如果不是1说明此文件">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-02-20T11:31:25.222Z">
+<meta property="og:updated_time" content="2019-07-01T03:13:49.658Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="linux memalign,valloc函数">
-<meta name="twitter:description" content="在GNU系统中，malloc或realloc返回的内存块地址都是8的倍数（如果是64位系统，则为16的倍数）。如果你需要更大的粒度，请使用memalign或valloc。这些函数在头文件“stdlib.h”中声明。 ​    在GNU库中，可以使用函数free释放memalign和valloc返回的内存块。但无法在BSD系统中使用，而且BSD系统中并未提供释放这样的内存块的途径。 ​    函">
+<meta name="twitter:title" content="linux-unlink">
+<meta name="twitter:description" content="Linux下unlink函数的使用一、头文件 #include&amp;lt;unistd.h&amp;gt; 二、函数原型int unlink(const char *pathname); 三、函数介绍unlink()函数功能即为删除文件。执行unlink()函数会删除所给参数指定的文件。 注意： 执行unlink()函数并不一定会真正的删除文件，它先会检查文件系统中此文件的连接数是否为1，如果不是1说明此文件">
 
 
 
@@ -122,13 +122,13 @@
 
 
 
-  <link rel="canonical" href="http://www.tangyilong.com/2019/02/20/linux-memalign-valloc函数/">
+  <link rel="canonical" href="http://www.tangyilong.com/2019/07/01/linux-unlink/">
 
 
 
 
 
-  <title>linux memalign,valloc函数 | as3522</title>
+  <title>linux-unlink | as3522</title>
   
 
 
@@ -271,7 +271,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.tangyilong.com/2019/02/20/linux-memalign-valloc函数/">
+    <link itemprop="mainEntityOfPage" href="http://www.tangyilong.com/2019/07/01/linux-unlink/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="as3522">
@@ -288,7 +288,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">linux memalign,valloc函数</h1>
+          <h1 class="post-title" itemprop="name headline">linux-unlink</h1>
         
 
         <div class="post-meta">
@@ -300,8 +300,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-20T19:30:53+08:00">
-                2019-02-20
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-01T11:13:05+08:00">
+                2019-07-01
               </time>
             
 
@@ -338,10 +338,14 @@
       
 
       
-        <p>  在GNU系统中，malloc或realloc返回的内存块地址都是8的倍数（如果是64位系统，则为16的倍数）。如果你需要更大的粒度，请使用memalign或valloc。这些函数在头文件“stdlib.h”中声明。</p>
-<p>​    在GNU库中，可以使用函数free释放memalign和valloc返回的内存块。但无法在BSD系统中使用，而且BSD系统中并未提供释放这样的内存块的途径。</p>
-<p>​    函数：void * memalign (size_t boundary, size_t size)<br>​    函数memalign将分配一个由size指定大小，地址是boundary的倍数的内存块。参数boundary必须是2的幂！函数memalign可以分配较大的内存块，并且可以为返回的地址指定粒度。</p>
-<p>​    函数：void <em> valloc (size_t size)<br>​    使用函数valloc与使用函数memalign类似，函数valloc的内部实现里，使用页的大小作为对齐长度，使用memalign来分配内存。它的实现如下所示：<br>​    void </em><br>​    valloc (size_t size)<br>​    {<br>​      return memalign (getpagesize (), size);<br>​    }  </p>
+        <h1 id="Linux下unlink函数的使用"><a href="#Linux下unlink函数的使用" class="headerlink" title="Linux下unlink函数的使用"></a>Linux下unlink函数的使用</h1><p>一、头文件</p>
+<p>#include&lt;unistd.h&gt;</p>
+<p>二、函数原型<br>int unlink(const char *pathname);</p>
+<p>三、函数介绍<br>unlink()函数功能即为删除文件。执行unlink()函数会删除所给参数指定的文件。</p>
+<p>注意：</p>
+<font color="0xff0000">执行unlink()函数并不一定会真正的删除文件，它先会检查文件系统中此文件的连接数是否为1，如果不是1说明此文件还有其他链接对象，因此只对此文件的连接数进行减1操作。若连接数为1，并且在此时没有任何进程打开该文件，此内容才会真正地被删除掉。在有进程打开此文件的情况下，则暂时不会删除，直到所有打开该文件的进程都结束时文件就会被删除。</font>
+
+<p>返回值：成功返回0，失败返回 -1<br>在文件打开的情况下unlink()并不会立即删除，并且对文件依然可以进行读写操作，在进程结束之后文件就会被删除掉！</p>
 
       
     </div>
@@ -366,8 +370,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/02/20/线程属性-pthread-attr-init/" rel="next" title="线程属性-pthread_attr_init">
-                <i class="fa fa-chevron-left"></i> 线程属性-pthread_attr_init
+              <a href="/2019/05/15/popen/" rel="next" title="popen">
+                <i class="fa fa-chevron-left"></i> popen
               </a>
             
           </div>
@@ -376,8 +380,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2019/02/20/算术移位逻辑移位/" rel="prev" title="算术移位逻辑移位">
-                算术移位逻辑移位 <i class="fa fa-chevron-right"></i>
+              <a href="/2019/07/01/linux本地套接字/" rel="prev" title="linux本地套接字">
+                linux本地套接字 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -430,8 +434,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
             
@@ -482,6 +495,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Linux下unlink函数的使用"><span class="nav-number">1.</span> <span class="nav-text">Linux下unlink函数的使用</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       

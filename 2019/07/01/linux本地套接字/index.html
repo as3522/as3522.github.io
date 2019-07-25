@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="as3522" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="Linux网络编程——Unix本地套接字概述　　今天给大家讲解网络编程中的一个内容——Unix 本地套接字。　　发现很多人不知道或者不太了解 Unix 本地套接字这个概念，这也难怪，socket API 原本就是为多台主机之间网络通信设计的，并且这种网络 socket 同样支持单台主机上的进程间通信，当然这样做的话，仍然需要 IP 地址和端口号（通过 loopback 地址 127.0.0.1）。">
+<meta name="keywords" content="as3522">
+<meta property="og:type" content="article">
+<meta property="og:title" content="linux本地套接字">
+<meta property="og:url" content="http://www.tangyilong.com/2019/07/01/linux本地套接字/index.html">
+<meta property="og:site_name" content="as3522">
+<meta property="og:description" content="Linux网络编程——Unix本地套接字概述　　今天给大家讲解网络编程中的一个内容——Unix 本地套接字。　　发现很多人不知道或者不太了解 Unix 本地套接字这个概念，这也难怪，socket API 原本就是为多台主机之间网络通信设计的，并且这种网络 socket 同样支持单台主机上的进程间通信，当然这样做的话，仍然需要 IP 地址和端口号（通过 loopback 地址 127.0.0.1）。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://www.tangyilong.com/pic/uinx-soket001.png">
+<meta property="og:image" content="http://www.tangyilong.com/pic/uinx-soket002.png">
+<meta property="og:image" content="http://www.tangyilong.com/pic/uinx-soket003.png">
+<meta property="og:image" content="http://www.tangyilong.com/pic/uinx-soket004.png">
+<meta property="og:image" content="http://www.tangyilong.com/pic/uinx-soket005.png">
+<meta property="og:image" content="http://www.tangyilong.com/pic/uinx-soket006.png">
+<meta property="og:updated_time" content="2019-07-01T03:20:57.567Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="linux本地套接字">
+<meta name="twitter:description" content="Linux网络编程——Unix本地套接字概述　　今天给大家讲解网络编程中的一个内容——Unix 本地套接字。　　发现很多人不知道或者不太了解 Unix 本地套接字这个概念，这也难怪，socket API 原本就是为多台主机之间网络通信设计的，并且这种网络 socket 同样支持单台主机上的进程间通信，当然这样做的话，仍然需要 IP 地址和端口号（通过 loopback 地址 127.0.0.1）。">
+<meta name="twitter:image" content="http://www.tangyilong.com/pic/uinx-soket001.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.tangyilong.com/2019/07/01/linux本地套接字/">
+
+
+
+
+
+  <title>linux本地套接字 | as3522</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+
+   <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;"></canvas> 
+      <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+	     <script type="text/javascript" src="/js/src/fireworks.js"></script>
+
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">as3522</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.tangyilong.com/2019/07/01/linux本地套接字/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="as3522">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="as3522">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">linux本地套接字</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-01T11:14:51+08:00">
+                2019-07-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Linux网络编程——Unix本地套接字"><a href="#Linux网络编程——Unix本地套接字" class="headerlink" title="Linux网络编程——Unix本地套接字"></a>Linux网络编程——Unix本地套接字</h1><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>　　今天给大家讲解网络编程中的一个内容——Unix 本地套接字。<br>　　发现很多人不知道或者不太了解 Unix 本地套接字这个概念，这也难怪，socket API 原本就是为多台主机之间网络通信设计的，并且这种网络 socket 同样支持单台主机上的进程间通信，当然这样做的话，仍然需要 IP 地址和端口号（通过 loopback 地址 127.0.0.1）。Unix本地套接字，其实就是一种专门用于本地（也就是单个主机上的）网络通信的一种方法，它所用的 API 跟我们之前用的网络 socket API 是一样的。<br>　　本文要介绍的 Unix 本地套接字是在 socket 的框架上发展出一种 IPC 机制，即 UNIX Domain Socket，也就是 UNIX 本地套接字，或者称为 UNIX 域套接字。相比于网络 socket 和 IPC，Unix本地套接字有其自身的特点和优势，下面我们就来看一下吧。<br>　　虽然在很多教材中经常把Unix本地套接字放在网络编程里面进行讲解，但实际上，这种通信方式更类似于我们之前所学的IPC（进程间通信）的方式，比如无名管道（pipe）、有名管道（mkfifo）。但是，Unix域套接字所提供的控制方式会更多一些，比如说TCP（字节流套接字）提供等待连接的功能，UDP（数据报套接字）提供帧同步功能，同时也是全双工的（比如使用 socketpair 创建的流管道中的两个描述符都是既可读又可写的）。 
+　　</p>
+<h2 id="TCP-和-UDP"><a href="#TCP-和-UDP" class="headerlink" title="TCP 和 UDP"></a>TCP 和 UDP</h2><p>　　首先，我们回顾一下，TCP 和 UDP 套接字的服务端和客户端，从 socket 的创建，到连接，到数据传输，再到关闭 socket 的整个流程。<br>　　TCP 是一种面向连接的字节流套接字，所以服务端需要通过 listen() 转变为被动 socket，通过 accept() 等待连接。</p>
+<p><img src="/pic/uinx-soket001.png" alt="img"></p>
+<pre><code>图1. TCP 客户/服务器通信流程
+</code></pre><p>　　而对于 UDP 来说，就比较简单了，因为它是一种无连接的数据报套接字，实际上，客户/服务端的概念也弱化了。</p>
+<p><img src="/pic/uinx-soket002.png" alt="img2"></p>
+<pre><code>图2. UDP 通信流程
+</code></pre><h2 id="Unix-本地套接字-API"><a href="#Unix-本地套接字-API" class="headerlink" title="Unix 本地套接字 API"></a>Unix 本地套接字 API</h2><p>　　前面我们说过，Unix 域套接字所使用的 API 其实跟我们之前用的 socket API 是一样的，并且对于 TCP 和 UDP，其工作流程跟上图的网络 socket 完全一样。<br>　　那么，下面我们就来看一下如何通过这些 API 来创建并使用我们的 Unix 本地套接字，以及它们之间有什么区别，然后再通过一个简单的示例程序来体验一下。</p>
+<h2 id="创建套接字"><a href="#创建套接字" class="headerlink" title="创建套接字"></a>创建套接字</h2><p>　　首先是 socket 的创建。同样使用 socket() 这个函数。</p>
+<p><img src="/pic/uinx-soket003.png" alt="img3"></p>
+<p>　　但是它的第一个参数 domain 不再是 <code>AF_INET</code> 或者 <code>PF_INET</code>，而是 <code>AF_UNIX</code>，表示的就是 Unix 域本地套接字。那 <code>AF_LOCAL</code> 又是什么呢？这其实是历史原因造成的，我们的主题是“Unix本地套接字”或者“Unix域套接字”，但实际上我们用是Linux，对吧。那其实，为了消除它对 Unix 操作系统的依赖，在 POSIX 标准中，早就已经将 <code>AF_UNIX</code> 变成 <code>AF_LOCAL</code> 了，但是尽管如此，我们依然习惯使用“Unix域”这个称谓，因此，更推荐大家使用 <code>AF_LOCAL</code>。<br>　　第二个参数的话，跟 Internet 域套接字一样，可以是 <code>SOCK_STREAM</code>、<code>SOCK_DGRAM</code> 和 <code>SOCK_RAW</code>，但实际上，几乎没见过使用原始套接字的。所以一般来说 Unix 提供两类套接字，也就是字节流套接字（类似于TCP）和数据报套接字（类似于UDP）。<br>　　第三个参数 Protocol，显然，因为第二个参数 type 不是原始套接字，所以 protocol 一般填 0 就可以了。</p>
+<h2 id="绑定地址"><a href="#绑定地址" class="headerlink" title="绑定地址"></a>绑定地址</h2><p>　　创建完套接字，接下来就是通过 bind() 函数绑定地址，但对于 Unix 本地套接字来说，绑定的地址就不是原来的“IP地址 + 端口号”了，而是一个有效的路径。</p>
+<p><img src="/pic/uinx-soket004.png" alt="img4"></p>
+<p>　　本地套接字的地址结构体 sockaddr_un 的后缀是 <code>_un</code>，表示 Unix，而不是原来的 <code>sockaddr_in</code>（Internet）。我们来看一下这个Unix域套接字的地址结构体中包含哪些内容：</p>
+<p><img src="/pic/uinx-soket005.png" alt="img5"></p>
+<p>　　Unix 本地套接字的地址结构体中包含两个成员，其中 sun_family 表示协议族，填 AF_LOCAL 或 AF_UNIX 即可；sun_path 表示一个路径名。<br>　　从这里面可以很明显得看出 Unix 域套接字与原来的 网络套接字的区别，Unix 域中用于标识客户和服务器的协议地址是普通文件系统中的<strong>路径名</strong>，而这个文件就称为<strong>套接字文件</strong>。<br>　　这里要强调一下的是，Unix 本地套接字关联的这个路径名应该是一个<strong>绝对路径名</strong>，而不是一个相对路径名。为什么呢？因为解析相对路径依赖于调用者的当前工作目录，也就是说，要是服务器绑定了一个相对路径名，那么客户端也得在与服务端相同的目录中才能成功调用connect（连接）或者sendto（发送）这样一些函数。显然，这样就会导致程序出现异常情况，所以建议大家最好使用一个绝对路径名。<br>　　这个路径名，其实还要分为两种，一种是我们上面所提到的普通路径名，另一种是抽象路径名。普通路径名是一个正常的字符串，也就是说，sun_path 字段是以空字符（’\0’）结尾的。而抽象路径名，sun_path 字段的第一个字节需要设置成 NULL（’\0’），所以在计算抽象路径名的长度的时候就要特别小心了，否则在解析抽象路径名时就有可能出现异常情况，因为抽象路径名不是像解析普通路径名那样，解析到第一个 NULL 就可以停止了。<br>　　使用抽象路径名的好处是，因为不会再在文件系统中创建文件了，所以对于抽象路径名来说，就不需要担心与文件系统中已存在的文件产生名字冲突的问题了，也不需要在使用完套接字之后删除附带产生的这个文件了，当套接字被关闭之后会自动删除这个抽象名。</p>
+<h2 id="其他API"><a href="#其他API" class="headerlink" title="其他API"></a>其他API</h2><p>　　其他的一些 API，比如 listen()、accept()、connect()，以及数据通信用的 read()、write()、recv()、send()、recvfrom()、sendto()、recvmsg()、sendmsg()，用法跟网络 socket 基本一样，主要是地址结构体需要注意一下。</p>
+<p><img src="/pic/uinx-soket006.png" alt="img6"></p>
+<p>　　另外，在 Unix 本地套接字的使用中，还经常用到这些 API：</p>
+<p>　　（1）用于创建类似于无名管道（pipe）的本地套接字</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">socketpair</span><span class="params">(<span class="keyword">int</span> domain, <span class="keyword">int</span> type, <span class="keyword">int</span> protocol, <span class="keyword">int</span> sv[<span class="number">2</span>])</span></span>;</span><br></pre></td></tr></table></figure>
+<p>　　（2）当不再需要这个 Unix 域套接字时，应删除路径名对应的文件<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">unlink</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *pathname)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">remove</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *pathname)</span></span>;</span><br></pre></td></tr></table></figure></p>
+<p>　　注意，如果是抽象路径名，就不需要在使用完本地套接字后手动删除对应的套接字文件，因为当本地套接字被关闭之后，内核会自动删除这个抽象名。</p>
+<p>　　（3）获取本地套接字的地址信息<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">getsockname</span><span class="params">(<span class="keyword">int</span> sockfd, struct sockaddr *addr, <span class="keyword">socklen_t</span> *addrlen)</span></span>;</span><br></pre></td></tr></table></figure></p>
+<h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><h3 id="TCP（字节流套接字）"><a href="#TCP（字节流套接字）" class="headerlink" title="TCP（字节流套接字）"></a>TCP（字节流套接字）</h3><p>　　在这个例子中，我们使用绝对路径名”/tmp/unix.str”来实现一个字节流的本地套接字，服务端接收数据，客户端发送数据。</p>
+<p>【unixstr_serv.c】<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/socket.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/un.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> UNIXSTR_PATH <span class="meta-string">"/tmp/unix.str"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LISTENQ 5</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BUFFER_SIZE 256</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> listenfd, connfd;</span><br><span class="line">    <span class="keyword">socklen_t</span> len;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_un</span> <span class="title">servaddr</span>, <span class="title">cliaddr</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(<span class="number">-1</span> == (listenfd = socket(AF_LOCAL, SOCK_STREAM, <span class="number">0</span>)))</span><br><span class="line">    &#123;</span><br><span class="line">        perror(<span class="string">"socket"</span>);</span><br><span class="line">        <span class="built_in">exit</span>(EXIT_FAILURE);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    unlink(UNIXSTR_PATH);</span><br><span class="line">    </span><br><span class="line">    bzero(&amp;servaddr, <span class="keyword">sizeof</span>(servaddr));</span><br><span class="line">    servaddr.sun_family = AF_LOCAL;</span><br><span class="line">    <span class="built_in">strcpy</span>(servaddr.sun_path, UNIXSTR_PATH);</span><br><span class="line">    <span class="keyword">if</span>(<span class="number">-1</span> == bind(listenfd, (struct sockaddr *)&amp;servaddr, <span class="keyword">sizeof</span>(servaddr)))</span><br><span class="line">    &#123;</span><br><span class="line">        perror(<span class="string">"bind"</span>);</span><br><span class="line">        <span class="built_in">exit</span>(EXIT_FAILURE);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    listen(listenfd, LISTENQ);</span><br><span class="line">    </span><br><span class="line">    len = <span class="keyword">sizeof</span>(cliaddr);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span>(<span class="number">-1</span> == (connfd = accept(listenfd, (struct sockaddr *)&amp;cliaddr, &amp;len)))</span><br><span class="line">    &#123;</span><br><span class="line">        perror(<span class="string">"accept"</span>);</span><br><span class="line">        <span class="built_in">exit</span>(EXIT_FAILURE);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">char</span> buf[BUFFER_SIZE];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        bzero(buf, <span class="keyword">sizeof</span>(buf));</span><br><span class="line">        <span class="keyword">if</span>(read(connfd, buf, BUFFER_SIZE) == <span class="number">0</span>) <span class="keyword">break</span>;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Receive: %s"</span>, buf);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    close(listenfd);</span><br><span class="line">    close(connfd);</span><br><span class="line">    unlink(UNIXSTR_PATH);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>【unixstr_cli.c】<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/socket.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/un.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> UNIXSTR_PATH <span class="meta-string">"/tmp/unix.str"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LISTENQ 5</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BUFFER_SIZE 256</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> sockfd;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_un</span> <span class="title">servaddr</span>;</span></span><br><span class="line"></span><br><span class="line">    sockfd = socket(AF_LOCAL, SOCK_STREAM, <span class="number">0</span>);</span><br><span class="line">    </span><br><span class="line">    bzero(&amp;servaddr, <span class="keyword">sizeof</span>(servaddr));</span><br><span class="line">    servaddr.sun_family = AF_LOCAL;</span><br><span class="line">    <span class="built_in">strcpy</span>(servaddr.sun_path, UNIXSTR_PATH);</span><br><span class="line">    </span><br><span class="line">    connect(sockfd, (struct sockaddr *)&amp;servaddr, <span class="keyword">sizeof</span>(servaddr));</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">char</span> buf[BUFFER_SIZE];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        bzero(buf, <span class="keyword">sizeof</span>(BUFFER_SIZE));</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"&gt;&gt; "</span>);</span><br><span class="line">        <span class="keyword">if</span>(fgets(buf, BUFFER_SIZE, <span class="built_in">stdin</span>) == <span class="literal">NULL</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        write(sockfd, buf, <span class="built_in">strlen</span>(buf));</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    close(sockfd);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>　　有兴趣的童鞋可以自己编译、执行，看看运行效果，我们这里来看一下 /tmp/unix.str 这个文件吧。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rudy@ubuntu12:/tmp$ ls -l unix.str </span><br><span class="line">srwxrwxr-x 1 rudy rudy 0 10月 26 11:58 unix.str</span><br></pre></td></tr></table></figure></p>
+<p>　　显然，文件类型为“s”，代表套接字文件，也就是 S_IFSOCK 类型。</p>
+<h3 id="UDP（数据报套接字）"><a href="#UDP（数据报套接字）" class="headerlink" title="UDP（数据报套接字）"></a>UDP（数据报套接字）</h3><p>　　类似于上面 TCP 的例子，我们使用绝对路径名”/tmp/unix.dg”来实现一个数据报的本地套接字，一端接收数据，一端发送数据。</p>
+<p>【unixdg_serv.c】<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/socket.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/un.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> UNIXDG_PATH <span class="meta-string">"/tmp/unix.dg"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BUFFER_SIZE 256</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> sockfd;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_un</span> <span class="title">servaddr</span>, <span class="title">cliaddr</span>;</span></span><br><span class="line"></span><br><span class="line">    sockfd = socket(AF_LOCAL, SOCK_DGRAM, <span class="number">0</span>);</span><br><span class="line">    </span><br><span class="line">    unlink(UNIXDG_PATH);</span><br><span class="line">    </span><br><span class="line">    bzero(&amp;servaddr, <span class="keyword">sizeof</span>(servaddr));</span><br><span class="line">    servaddr.sun_family = AF_LOCAL;</span><br><span class="line">    <span class="built_in">strcpy</span>(servaddr.sun_path, UNIXDG_PATH);</span><br><span class="line">    </span><br><span class="line">    bind(sockfd, (struct sockaddr *)&amp;servaddr, <span class="keyword">sizeof</span>(servaddr));</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">socklen_t</span> len = <span class="keyword">sizeof</span>(cliaddr);</span><br><span class="line">    <span class="keyword">char</span> buf[BUFFER_SIZE];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        bzero(buf, BUFFER_SIZE);</span><br><span class="line">    </span><br><span class="line">        <span class="keyword">if</span>(<span class="number">0</span> == recvfrom(sockfd, buf, BUFFER_SIZE, <span class="number">0</span>, (struct sockaddr *)&amp;cliaddr, &amp;len))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"recvfrom: %s"</span>, buf);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    close(sockfd);</span><br><span class="line">    unlink(UNIXDG_PATH);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>【unixdg_cli.c】<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/socket.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/un.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> UNIXDG_PATH <span class="meta-string">"/tmp/unix.dg"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BUFFER_SIZE 256</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> sockfd;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_un</span> <span class="title">servaddr</span>, <span class="title">cliaddr</span>;</span></span><br><span class="line">    <span class="keyword">socklen_t</span> len;</span><br><span class="line"></span><br><span class="line">    sockfd = socket(AF_LOCAL, SOCK_DGRAM, <span class="number">0</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/* local address */</span></span><br><span class="line">    bzero(&amp;cliaddr, <span class="keyword">sizeof</span>(cliaddr));</span><br><span class="line">    cliaddr.sun_family = AF_LOCAL;</span><br><span class="line">    <span class="built_in">strcpy</span>(cliaddr.sun_path, UNIXDG_PATH);</span><br><span class="line">    bind(sockfd, (struct sockaddr *)&amp;cliaddr, <span class="keyword">sizeof</span>(cliaddr));</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/* remote address */</span></span><br><span class="line">    bzero(&amp;servaddr, <span class="keyword">sizeof</span>(servaddr));</span><br><span class="line">    servaddr.sun_family = AF_LOCAL;</span><br><span class="line">    <span class="built_in">strcpy</span>(servaddr.sun_path, UNIXDG_PATH);</span><br><span class="line">    len = <span class="keyword">sizeof</span>(servaddr);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">char</span> buf[BUFFER_SIZE];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        bzero(buf, BUFFER_SIZE);</span><br><span class="line">    </span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"&gt;&gt; "</span>);</span><br><span class="line">        <span class="keyword">if</span>(fgets(buf, BUFFER_SIZE, <span class="built_in">stdin</span>) == <span class="literal">NULL</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        sendto(sockfd, buf, <span class="built_in">strlen</span>(buf), <span class="number">0</span>, (struct sockaddr *)&amp;servaddr, len);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    close(sockfd);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;   </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>　　需要注意的是，跟网络套接字不一样，对于 Unix 域套接字的 UDP 客户端，必须 bind 一个路径名到 UDP 套接字，以使得 UDP 服务器有发送应答的目的地。</p>
+<p>总结<br>　　通过上面简单的示例，我们可以看到 Unix 本地套接字跟 Internet 套接字虽然使用相同的 API，但用法上又有些不同，跟IPC（比如管道、消息队列、共享内存等）相比，也有不同。我们可以简单地把 Unix 本地套接字看成是 socket 和管道的混合体。<br>　　可以这么说，Unix 本地套接字的优势体现在它所使用的 API 几乎等同于网络 socket（客户/服务器）使用的 API，但是与客户端和服务端都在同一主机上的 TCP 相比，Unix 本地字节流套接字有性能上的优势。在单个主机，使用 Unix 域套接字来替代 Internet 域套接字是有好处的。<br>　　最后，总结一下：<br>　　（1）Socket 同样可以用于本地通信。<br>　　（2）创建套接字时使用本地协议 AF_LOCAL。<br>　　（3）分为流式套接字（SOCK_STREAM）和数据报套接字（SOCK_DGRAM） 。<br>　　（4）和其他进程间通信方式相比，Unix 本地套接字使用方便，效率也高 。因为它不需要经过网络协议栈、不需要打包拆包、不需要计算校验和、不需要维护序号和应答等、只是将应用层数据从一个进程拷贝到另一个进程……<br>　　（5）常用于前后台进程通信，比如 X Window。<br>　　（6）另外，Unix 本地套接字可用于传递文件描述符、传递用户凭证等场景。</p>
+<hr>
+<p>原文：<a href="https://blog.csdn.net/lu_embedded/article/details/78352230" target="_blank" rel="noopener">https://blog.csdn.net/lu_embedded/article/details/78352230</a> </p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/07/01/linux-unlink/" rel="next" title="linux-unlink">
+                <i class="fa fa-chevron-left"></i> linux-unlink
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.gif" alt="as3522">
+            
+              <p class="site-author-name" itemprop="name">as3522</p>
+              <p class="site-description motion-element" itemprop="description">personal blog</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">37</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Linux网络编程——Unix本地套接字"><span class="nav-number">1.</span> <span class="nav-text">Linux网络编程——Unix本地套接字</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#概述"><span class="nav-number">1.1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP-和-UDP"><span class="nav-number">1.2.</span> <span class="nav-text">TCP 和 UDP</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Unix-本地套接字-API"><span class="nav-number">1.3.</span> <span class="nav-text">Unix 本地套接字 API</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#创建套接字"><span class="nav-number">1.4.</span> <span class="nav-text">创建套接字</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#绑定地址"><span class="nav-number">1.5.</span> <span class="nav-text">绑定地址</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其他API"><span class="nav-number">1.6.</span> <span class="nav-text">其他API</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#示例"><span class="nav-number">1.7.</span> <span class="nav-text">示例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#TCP（字节流套接字）"><span class="nav-number">1.7.1.</span> <span class="nav-text">TCP（字节流套接字）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UDP（数据报套接字）"><span class="nav-number">1.7.2.</span> <span class="nav-text">UDP（数据报套接字）</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">as3522</span>
+
+  
+</div>
+
+
+  <div class="powered-by">个人网站 <a class="theme-link" target="_blank" href="http://www.as3522.com">as3522</a> </div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">By-as3522 </div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
