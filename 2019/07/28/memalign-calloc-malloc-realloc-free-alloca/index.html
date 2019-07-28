@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="as3522" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="memalign 在GNU系统中，malloc或realloc返回的内存块地址都是8的倍数（如果是64位系统，则为16的倍数）。如果你需要更大的粒度，请使用memalign或valloc。这些函数在头文件“stdlib.h”中声明。 ​    在GNU库中，可以使用函数free释放memalign和valloc返回的内存块。但无法在BSD系统中使用，而且BSD系统中并未提供释放这样的内存块的途径。">
+<meta name="keywords" content="as3522">
+<meta property="og:type" content="article">
+<meta property="og:title" content="memalign-calloc-malloc-realloc-free-alloca">
+<meta property="og:url" content="http://www.tangyilong.com/2019/07/28/memalign-calloc-malloc-realloc-free-alloca/index.html">
+<meta property="og:site_name" content="as3522">
+<meta property="og:description" content="memalign 在GNU系统中，malloc或realloc返回的内存块地址都是8的倍数（如果是64位系统，则为16的倍数）。如果你需要更大的粒度，请使用memalign或valloc。这些函数在头文件“stdlib.h”中声明。 ​    在GNU库中，可以使用函数free释放memalign和valloc返回的内存块。但无法在BSD系统中使用，而且BSD系统中并未提供释放这样的内存块的途径。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-07-28T11:05:01.934Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="memalign-calloc-malloc-realloc-free-alloca">
+<meta name="twitter:description" content="memalign 在GNU系统中，malloc或realloc返回的内存块地址都是8的倍数（如果是64位系统，则为16的倍数）。如果你需要更大的粒度，请使用memalign或valloc。这些函数在头文件“stdlib.h”中声明。 ​    在GNU库中，可以使用函数free释放memalign和valloc返回的内存块。但无法在BSD系统中使用，而且BSD系统中并未提供释放这样的内存块的途径。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.tangyilong.com/2019/07/28/memalign-calloc-malloc-realloc-free-alloca/">
+
+
+
+
+
+  <title>memalign-calloc-malloc-realloc-free-alloca | as3522</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+
+   <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;"></canvas> 
+      <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+	     <script type="text/javascript" src="/js/src/fireworks.js"></script>
+
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">as3522</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.tangyilong.com/2019/07/28/memalign-calloc-malloc-realloc-free-alloca/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="as3522">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="as3522">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">memalign-calloc-malloc-realloc-free-alloca</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-28T19:04:17+08:00">
+                2019-07-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="memalign"><a href="#memalign" class="headerlink" title="memalign"></a>memalign</h2><p> 在GNU系统中，malloc或realloc返回的内存块地址都是8的倍数（如果是64位系统，则为16的倍数）。如果你需要更大的粒度，请使用memalign或valloc。这些函数在头文件“stdlib.h”中声明。</p>
+<p>​    在GNU库中，可以使用函数free释放memalign和valloc返回的内存块。但无法在BSD系统中使用，而且BSD系统中并未提供释放这样的内存块的途径。</p>
+<p>​    函数：void * memalign (size_t boundary, size_t size)<br>​    函数memalign将分配一个由size指定大小，地址是boundary的倍数的内存块。<font color="#ff0000">参数boundary必须是2的幂！</font>函数memalign可以分配较大的内存块，并且可以为返回的地址指定粒度。</p>
+<p>​    函数：void <em> valloc (size_t size)<br>​    使用函数valloc与使用函数memalign类似，函数valloc的内部实现里，使用页的大小作为对齐长度，使用memalign来分配内存。它的实现如下所示：<br>​    void </em><br>​    valloc (size_t size)<br>​    {<br>​      return memalign (getpagesize (), size);<br>​    }  </p>
+<h2 id="malloc-calloc-realloc-alloca内存分配函数"><a href="#malloc-calloc-realloc-alloca内存分配函数" class="headerlink" title="malloc/calloc/realloc/alloca内存分配函数"></a>malloc/calloc/realloc/alloca内存分配函数</h2><p>calloc(), malloc(), realloc(), free(),alloca()</p>
+<p>内存区域可以分为栈、堆、静态存储区和常量存储区，局部变量，函数形参，临时变量都是在栈上获得内存的，它们获取的方式都是由编译器自动执行的。<br>利用指针，我们可以像汇编语言一样处理内存地址，C 标准函数库提供了许多函数来实现对堆上内存管理，其中包括：malloc函数，free函数，calloc函数和realloc函数。使用这些函数需要包含头文件stdlib.h。</p>
+<p>四个函数之间的有区别，也有联系，我们应该学会把握这种关系，从而编出精炼而高效的程序。</p>
+<p>在说明它们具体含义之前，先简单从字面上加以认识，前3个函数有个共同的特点，就是都带有字符”alloc”，就是”allocate”，”分配”的意思，也就是给对象分配足够的内存，” calloc()”是”分配内存给多个对象”，” malloc()”是”分配内存给一个对象”，”realloc()”是”重新分配内存”之意。”free()”就比较简单了，”释放”的意思，就是把之前所分配的内存空间给释放出来。</p>
+<p>void *calloc(size_t nobj, size_t size);</p>
+<p>分配足够的内存给nobj个大小为size的对象组成的数组, 并返回指向所分配区域的第一个字节的指针;<br>若内存不够,则返回NULL. 该空间的初始化大小为0字节.<br>char <em>p = (char </em>) calloc(100,sizeof(char));</p>
+<p>void *malloc(size_t size);</p>
+<p>分配足够的内存给大小为size的对象, 并返回指向所分配区域的第一个字节的指针;<br>若内存不够,则返回NULL. 不对分配的空间进行初始化.<br>char <em>p = (char </em>)malloc(sizeof(char));</p>
+<p>void <em>realloc(void </em>p, size_t size);</p>
+<p>将p所指向的对象的大小改为size个字节.<br>如果新分配的内存比原内存大, 那么原内存的内容保持不变, 增加的空间不进行初始化.<br>如果新分配的内存比原内存小, 那么新内存保持原内存的内容, 增加的空间不进行初始化.<br>返回指向新分配空间的指针; 若内存不够,则返回NULL, 原p指向的内存区不变.<br>char <em>p = (char </em>)malloc(sizeof(char));<br>p= (char *)realloc(p, 256);</p>
+<p>void free(void *p);</p>
+<p>释放p所指向的内存空间; 当p为NULL时, 不起作用.<br>p必先调用calloc, malloc或realloc.</p>
+<p>值得注意的有以下5点：</p>
+<p>（1）通过malloc函数得到的堆内存必须使用memset函数来初始化</p>
+<p>malloc函数分配得到的内存空间是未初始化的。因此，一般在使用该内存空间时，要调用另一个函数memset来将其初始化为全0，memset函数的声明如下：void <em> memset (void </em> p,int c,int n) ;</p>
+<p>该函数可以将指定的内存空间按字节单位置为指定的字符c，其中，p为要清零的内存空间的首地址，c为要设定的值，n为被操作的内存空间的字节长度。如果要用memset清0，变量c实参要为0。</p>
+<p>malloc函数和memset函数的操作语句一般如下：</p>
+<p>int * p=NULL;</p>
+<p>p=(int*)malloc(sizeof(int));</p>
+<p>if(p==NULL)</p>
+<p>printf(“Can’t get memory!\n”);</p>
+<p>memset(p,0,siezeof(int));</p>
+<p>（2）使用malloc函数分配的堆空间在程序结束之前必须释放</p>
+<p>从堆上获得的内存空间在程序结束以后，系统不会将其自动释放，需要程序员来自己管理。一个程序结束时，必须保证所有从堆上获得的内存空间已被安全释放，否则，会导致内存泄露。</p>
+<p>我们可以使用free()函数来释放内存空间，但是，free函数只是释放指针指向的内容，而该指针仍然指向原来指向的地方，此时，指针为野指针，如果此时操作该指针会导致不可预期的错误。安全做法是：在使用free函数释放指针指向的空间之后，将指针的值置为NULL。</p>
+<p>（3）calloc函数的分配的内存也需要自行释放</p>
+<p>calloc函数的功能与malloc函数的功能相似，都是从堆分配内存,它与malloc函数的一个显著不同时是，calloc函数得到的内存空间是经过初始化的，其内容全为0。calloc函数适合为数组申请空间，可以将size设置为数组元素的空间长度，将n设置为数组的容量。</p>
+<p>（4）如果要使用realloc函数分配的内存，必须使用memset函数对其内存初始化</p>
+<p>realloc函数的功能比malloc函数和calloc函数的功能更为丰富，可以实现内存分配和内存释放的功能。realloc 可以对给定的指针所指的空间进行扩大或者缩小，无论是扩张或是缩小，原有内存的中内容将保持不变。当然，对于缩小，则被缩小的那一部分的内容会丢失。realloc 并不保证调整后的内存空间和原来的内存空间保持同一内存地址。相反，realloc 返回的指针很可能指向一个新的地址。</p>
+<p>所以，在代码中，我们必须将realloc返回的值，重新赋值给 p :</p>
+<p>p = (int <em>) realloc(p, sizeof(int) </em>15);</p>
+<p>甚至，你可以传一个空指针（0）给 realloc ，则此时realloc 作用完全相当于malloc。</p>
+<p>int<em> p = (int </em>)realloc (0,sizeof(int) * 10); //分配一个全新的内存空间，</p>
+<p>这一行，作用完全等同于：</p>
+<p>int<em> p = (int </em>)malloc(sizeof(int) * 10);</p>
+<p>（5）关于alloca()函数</p>
+<p>还有一个函数也值得一提，这就是alloca()。其调用序列与malloc相同，但是它是在当前函数的栈帧上分配存储空间，而不是在堆中。其优点是：当 函数返回时，自动释放它所使用的栈帧，所以不必再为释放空间而费心。其缺点是：某些系统在函数已被调用后不能增加栈帧长度，于是也就不能支持alloca 函数。尽管如此，很多软件包还是使用alloca函数，也有很多系统支持它。</p>
+<font color="#ff0000">总结：应用时候需要记得，只有calloc可以指定个数和大小，而且能够对分配内存进行初始化，其余函数均不会对内存进行初始化工作，需要自行调用memset（）函数.</font>
+
+<hr>
+<p><a href="https://www.cnblogs.com/3me-linux/p/3962152.html" target="_blank" rel="noopener">https://www.cnblogs.com/3me-linux/p/3962152.html</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/07/28/网络编程设置TTL/" rel="next" title="网络编程设置TTL">
+                <i class="fa fa-chevron-left"></i> 网络编程设置TTL
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/07/28/sendto和recvfrom/" rel="prev" title="sendto和recvfrom">
+                sendto和recvfrom <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.gif" alt="as3522">
+            
+              <p class="site-author-name" itemprop="name">as3522</p>
+              <p class="site-description motion-element" itemprop="description">personal blog</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">44</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#memalign"><span class="nav-number">1.</span> <span class="nav-text">memalign</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#malloc-calloc-realloc-alloca内存分配函数"><span class="nav-number">2.</span> <span class="nav-text">malloc/calloc/realloc/alloca内存分配函数</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">as3522</span>
+
+  
+</div>
+
+
+  <div class="powered-by">个人网站 <a class="theme-link" target="_blank" href="http://www.as3522.com">as3522</a> </div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">By-as3522 </div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

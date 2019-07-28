@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="as3522" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="PF_PACKET瞅代码的时候，看到一个很奇特的socket，sock=socket(PF_PACKET, SOCK_RAW, htons(0x8888)) 那什么是PF_PACKET?我在网上翻了一下，找到了一片不错的文章，详细 sock_raw（注意一定要在root下使用）原始套接字编程可以接收到本机网卡上的数据帧或者数据包,对于监听网络的流量和分析是很有作用的.一共可以有3种方式创建这种so">
+<meta name="keywords" content="as3522">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PF_PACKET">
+<meta property="og:url" content="http://www.tangyilong.com/2019/07/28/PF-PACKET/index.html">
+<meta property="og:site_name" content="as3522">
+<meta property="og:description" content="PF_PACKET瞅代码的时候，看到一个很奇特的socket，sock=socket(PF_PACKET, SOCK_RAW, htons(0x8888)) 那什么是PF_PACKET?我在网上翻了一下，找到了一片不错的文章，详细 sock_raw（注意一定要在root下使用）原始套接字编程可以接收到本机网卡上的数据帧或者数据包,对于监听网络的流量和分析是很有作用的.一共可以有3种方式创建这种so">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://www.tangyilong.com/pic/pf-packet001.jpg">
+<meta property="og:image" content="http://www.tangyilong.com/pic/pf_packet002.png">
+<meta property="og:updated_time" content="2019-07-28T11:24:21.891Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PF_PACKET">
+<meta name="twitter:description" content="PF_PACKET瞅代码的时候，看到一个很奇特的socket，sock=socket(PF_PACKET, SOCK_RAW, htons(0x8888)) 那什么是PF_PACKET?我在网上翻了一下，找到了一片不错的文章，详细 sock_raw（注意一定要在root下使用）原始套接字编程可以接收到本机网卡上的数据帧或者数据包,对于监听网络的流量和分析是很有作用的.一共可以有3种方式创建这种so">
+<meta name="twitter:image" content="http://www.tangyilong.com/pic/pf-packet001.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.tangyilong.com/2019/07/28/PF-PACKET/">
+
+
+
+
+
+  <title>PF_PACKET | as3522</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+
+   <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;"></canvas> 
+      <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+	     <script type="text/javascript" src="/js/src/fireworks.js"></script>
+
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">as3522</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.tangyilong.com/2019/07/28/PF-PACKET/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="as3522">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="as3522">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">PF_PACKET</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-28T19:09:36+08:00">
+                2019-07-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="PF-PACKET"><a href="#PF-PACKET" class="headerlink" title="PF_PACKET"></a>PF_PACKET</h1><p>瞅代码的时候，看到一个很奇特的socket，sock=socket(PF_PACKET, SOCK_RAW, htons(0x8888))</p>
+<p>那什么是PF_PACKET?我在网上翻了一下，找到了一片不错的文章，详细</p>
+<p>sock_raw（注意一定要在root下使用）原始套接字编程可以接收到本机网卡上的数据帧或者数据包,对于监听网络的流量和分析是很有作用的.一共可以有3种方式创建这种socket</p>
+<p>1.socket(AF_INET, SOCK_RAW, IPPROTO_TCP|IPPROTO_UDP|IPPROTO_ICMP)发送接收ip数据包，不能用IPPROTO_IP，因为如果是用了IPPROTO_IP，系统根本就不知道该用什么协议。<br>2.socket(PF_PACKET, SOCK_RAW, htons(ETH_P_IP|ETH_P_ARP|ETH_P_ALL))发送接收以太网数据帧<br>3.socket(AF_INET, SOCK_PACKET, htons(ETH_P_IP|ETH_P_ARP|ETH_P_ALL))过时了,不要用啊</p>
+<p>1.介绍<br>在linux中提供了PF_PACKET接口可以操作链路层的数据。</p>
+<p>2.使用方法<br>定义一个pf_packet = socket(PF_SOCKET, SOCK_RAW, htons(ETH_P_RARP));<br>就可以利用函数sendto和recefrom来读取和发送链路层的数据包了（当然，发送ARP包，上面第三个参数要变为 htons(ETH_P_ARP)，或者IP的包为ETH_P_IP，可查看文件/usr/include/linux/if_ether.h文件看到所有支持的协议）。</p>
+<p>3.在使用SOCK_RAW, SOCK_DGRAM和SOCK_PACKET的区别<br>在socket的第一个参数使用PF_PACKET的时候，上述三种socket的类型都可以使用。但是有区别。<br>(1)使用SOCK_RAW发送的数据必须包含链路层的协议头，接受得到的数据包，包含链路层协议头。而使用SOCK_DGRAM则都不含链路层的协议头。<br>(2)SOCK_PACKET也是可以使用的，但是已经废弃，以后不保证还能支持，不推荐使用。<br>(3)在使用SOCK_RAW或SOCK_DGRAM和SOCK_PACKET时，在sendto和recvfrom中使用的地址类型不同，前两者使用sockaddr_ll类型的地址，而后者使用sockaddr类型的地址。<br>(4)如socket的第一个参数使用PF_INET，第二个参数使用SOCK_RAW，则可以得到原始的IP包。</p>
+<h2 id="1-什么PF-PACKET类型的socket"><a href="#1-什么PF-PACKET类型的socket" class="headerlink" title="1. 什么PF_PACKET类型的socket"></a>1. 什么PF_PACKET类型的socket</h2><p>创建socket的函数如下：</p>
+<p>   fd = socket(int domain, int type, int protocol)</p>
+<p>   基于TCP/IP的传输层实现的：</p>
+<p>   文件传送协议ftp，基于tcp实现，用下面的方式创建socket：</p>
+<p>   fd = socket(AF_INET, SOCK_STREAM, IPPTORO_TCP)</p>
+<p>   自动地址分配协议dhcp，基于udp实现，用下面的方式创建socket：</p>
+<p>   fd = socket(AF_INET, SOCK_DGRAM, IPPTORO_UDP)</p>
+<p>   基于TCP/IP的网络层实现的：</p>
+<p>   消息控制协议icmp，基于raw ip实现，用下面的方式创建socket：</p>
+<p>   fd = socket(AF_INET, SOCK_RAW, IPPTORO_ICMP)</p>
+<p>   组播控制协议igmp，基于raw ip实现，用下面的方式创建socket：</p>
+<p>   fd = socket(AF_INET, SOCK_RAW, IPPTORO_IGMP)</p>
+<p>   socket是基于tcp/ip的网络编程接口，用于收发数据报，设置接收内核的某些状态以及事件。pf_packet类型的socket，是用来与驱动层面收发数据报的，接收和发送报文包含链路层信息，详细的信息参考：<a href="http://swoolley.org/man.cgi/7/packet。" target="_blank" rel="noopener">http://swoolley.org/man.cgi/7/packet。</a></p>
+<p>   socket的介绍使用，编程参考：<a href="https://blog.csdn.net/somyjun/article/details/84303074" target="_blank" rel="noopener">https://blog.csdn.net/somyjun/article/details/84303074</a></p>
+<h2 id="2-PF-PACKET类型socket应用场合"><a href="#2-PF-PACKET类型socket应用场合" class="headerlink" title="2. PF_PACKET类型socket应用场合"></a>2. PF_PACKET类型socket应用场合</h2><p>抓包，分析（如tcpdump）<br>   所有链接层的报文，单播、组播、广播，目的MAC地址，IP地址是设备本身配置的，或者是其他设备的，都通过socket发给用户态的抓包、分析程序。</p>
+<p>   一般链路层在处理收到的报文时，会依据目的MAC、目的IP地址，如果它们不是设备本身配置的（还有一些广播、组播除外），都会丢弃。因此，需要设置设备网络设备为混杂模式（promiscuous）。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">packet_mreq</span> <span class="title">mr</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">memset</span>(&amp;mr,<span class="number">0</span>,<span class="keyword">sizeof</span>(mr));</span><br><span class="line"></span><br><span class="line">mr.mf_ifindex = dev_id;</span><br><span class="line"></span><br><span class="line">mr.mr_type = PACKET_MR_PROMISC; <span class="comment">// 用于激活混杂模式以接受所有网络包;</span></span><br><span class="line"></span><br><span class="line">fd = socket(PF_PACKET, SOCK_RAW, &lt;font color=#ff0000&gt;ETH_P_ALL&lt;/font&gt;)  <span class="comment">// 所有类型的报文</span></span><br><span class="line"></span><br><span class="line">setsockopt(fd, SOL_PACKET, PACKET_ADD_MEMBERSHIP,&amp;mr,<span class="keyword">sizeof</span>(mr))</span><br></pre></td></tr></table></figure></p>
+<p> 跑在用户态的网络协议<br>   Linux内核并不是纯粹的操作系统，它实现了很多功能，包括二三层协议。一方面考虑到性能，另一方面移植性，现在有不少网络设备产商，二三层协议的实现是放在用户态的。</p>
+<p>   fd = socket(PF_PACKET, SOCK_RAW, ETH_P_8021Q)  // linux/if_ether.h，8021Q类型的报文</p>
+<h2 id="3-数据层面：驱动程序怎么把报文送到相应的socket-buffer"><a href="#3-数据层面：驱动程序怎么把报文送到相应的socket-buffer" class="headerlink" title="3. 数据层面：驱动程序怎么把报文送到相应的socket buffer"></a>3. 数据层面：驱动程序怎么把报文送到相应的socket buffer</h2><p>Linux内核，网络收报文有两个接口：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">netif_rx_ni</span><span class="params">(struct sk_buff *skb)</span>  <span class="comment">// loopback，tun之类的设备收报文调用</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">netif_rx</span><span class="params">(struct sk_buff *skb)</span>      <span class="comment">// 中断上下文调用</span></span></span><br></pre></td></tr></table></figure></p>
+<p>   上面两个接口的区别与实现，请查看相应的源代码。</p>
+<p>   内核在收报文处理方式，有NAPI和非NAPI两张模式，参考下面的图。<br><img src="/pic/pf-packet001.jpg" alt="img001"></p>
+<p>区别在于非NAPI方式，在中断上下文里构造sk_buff，完成数据的拷贝后放到相关的队列里，底半部处理过程就是deque，然后传递给相关的处理模块，这种方式，CPU可能会陷入频繁的中断，无法处理别的任务；NAPI方式是一中Polling方式，中断上下文激活Polling，在底半部调用驱动的收报文接口。</p>
+<p>   open_softirq(NET_RX_SOFTIRQ, net_rx_action)     // softirq，底半部</p>
+<p>   前面过了下linux驱动收包的机制，重点来了，收到的报文，沿着怎样的路径送到咱们上面讲的pf_packet类型的socket buffer的呢？</p>
+<p>   在底半部的softirq，都会调用这个函数：</p>
+<p>int __netif_receive_skb(struct sk_buff *skb)</p>
+<p>int __netif_receive_skb_core(struct sk_buff *skb, bool pfmemalloc)</p>
+<p>下面来看看这个函数的重点逻辑部分（代码里vlan相关的部分略去）：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">list_for_each_entry_rcu(ptype, &amp;ptype_all, <span class="built_in">list</span>) &#123;      <span class="comment">// 第一次循环，ptype_all，未绑定到设备的ETH_ALL类似的socket</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (pt_prev)    </span><br><span class="line">    </span><br><span class="line">  ret = deliver_skb(skb, pt_prev, orig_dev);</span><br><span class="line">    </span><br><span class="line">  pt_prev = ptype;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">list_for_each_entry_rcu(ptype, &amp;skb-&gt;dev-&gt;ptype_all, <span class="built_in">list</span>) &#123;    <span class="comment">// 第二次循环，ptype_all，绑定到设备的ETH_ALL类似的socket</span></span><br><span class="line"></span><br><span class="line"> <span class="keyword">if</span> (pt_prev)</span><br><span class="line">    </span><br><span class="line">   ret = deliver_skb(skb, pt_prev, orig_dev);</span><br><span class="line">    </span><br><span class="line">   pt_prev = ptype;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">dev_add_pack</span><span class="params">(struct packet_type *pt)</span>    </span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> *<span class="title">head</span> = <span class="title">ptype_head</span>(<span class="title">pt</span>);</span></span><br><span class="line">   </span><br><span class="line">   spin_lock(&amp;ptype_lock);</span><br><span class="line">    </span><br><span class="line">   list_add_rcu(&amp;pt-&gt;<span class="built_in">list</span>, head);</span><br><span class="line">    </span><br><span class="line">   spin_unlock(&amp;ptype_lock);</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> struct list_head *<span class="title">ptype_head</span><span class="params">(<span class="keyword">const</span> struct packet_type *pt)</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span> (pt-&gt;type == htons(&lt;font color=#ff0000&gt;ETH_P_ALL&lt;/font&gt;))     <span class="comment">//  AF_PACKET类型的socket，要接收所有类型的报文</span></span><br><span class="line">    </span><br><span class="line">   <span class="keyword">return</span> pt-&gt;dev ? &amp;pt-&gt;dev-&gt;ptype_all : &amp;ptype_all;</span><br><span class="line">    </span><br><span class="line">   <span class="keyword">else</span></span><br><span class="line">    </span><br><span class="line">   <span class="keyword">return</span> pt-&gt;dev ? &amp;pt-&gt;dev-&gt;ptype_specific :&amp;ptype_base[ntohs(pt-&gt;type) &amp; PTYPE_HASH_MASK];</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>   从上面四个函数的逻辑就可看出，如果有类似tcpdump这样的在用户态抓包分析的程序，就调用deliver_skb。</p>
+<p>这里逻辑上的讲究是：</p>
+<p>   1）dev-&gt;ptype_all : ptype_all，用户态的pf_packet类型的套接字如果有bind到某个设备，就是设备单独维护的链表dev-&gt;ptype_all。</p>
+<p>   2）pt_prev初始化是NULL的指针，linux内核维护的双向链表，链表头不是个有意义的实体，所以，每次循环结束，最后一个ptype要等到后面的判断代码再执行一遍：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">pt_prev = <span class="literal">NULL</span>;    <span class="comment">// 初始化是空指针</span></span><br><span class="line"></span><br><span class="line">list_for_each_entry_rcu(ptype, &amp;ptype_all, <span class="built_in">list</span>) &#123;</span><br><span class="line">    </span><br><span class="line">  <span class="keyword">if</span> (pt_prev)</span><br><span class="line">    </span><br><span class="line">   	ret = deliver_skb(skb, pt_prev, orig_dev);  </span><br><span class="line">    </span><br><span class="line">   	pt_prev = ptype;     <span class="comment">// 赋值，下一次才会执行</span></span><br><span class="line">    </span><br><span class="line">   &#125;</span><br><span class="line">    </span><br><span class="line"> <span class="keyword">if</span>(pt_prev)&#123;   <span class="comment">// 不为空，执行</span></span><br><span class="line">    </span><br><span class="line">   <span class="keyword">if</span>(unlikely(skb_orphan_frags_rx(skb,GFP_ATOMIC)))</span><br><span class="line">    </span><br><span class="line">   <span class="keyword">goto</span> drop;</span><br><span class="line">    </span><br><span class="line">   <span class="keyword">else</span></span><br><span class="line">    </span><br><span class="line"> <span class="comment">// 这里执行最后一次回调，既然是最后一次调用，sbk就不需要clone了，这个就是与调用deliver_skb的区别</span></span><br><span class="line">    </span><br><span class="line">   ret = pt_prev-&gt;func(skb,skb-&gt;dev,pt_prev,orig_dev);</span><br><span class="line"></span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure></p>
+<p>下面来看看这个函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">int</span> <span class="title">deliver_skb</span><span class="params">(struct sk_buff *skb,struct packet_type *pt_prev,struct net_device *orig_dev)</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (unlikely(skb_orphan_frags_rx(skb, GFP_ATOMIC)))</span><br><span class="line"></span><br><span class="line">   <span class="keyword">return</span> -ENOMEM;</span><br><span class="line"></span><br><span class="line">  refcount_inc(&amp;skb-&gt;users);    <span class="comment">// 增加计数，释放时用的；</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">return</span> pt_prev-&gt;func(skb, skb-&gt;dev, pt_prev, orig_dev);   <span class="comment">// 函数指针，在下面的函数赋值</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在af_packet.c这个文件里，这个函数是创建socket：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">packet_create</span><span class="params">(struct net *net, struct socket *sock, <span class="keyword">int</span> protocol,<span class="keyword">int</span> kern)</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="class"><span class="keyword">struct</span> <span class="title">packet_sock</span> *<span class="title">po</span>;</span></span><br><span class="line"></span><br><span class="line">   po-&gt;prot_hook.func = packet_rcv;   <span class="comment">// func回调函数</span></span><br><span class="line">    </span><br><span class="line">   <span class="keyword">if</span> (proto) &#123;</span><br><span class="line">    </span><br><span class="line">   po-&gt;prot_hook.type = proto;</span><br><span class="line">    </span><br><span class="line">   register_prot_hook(sk);        <span class="comment">// 注册到ptype_all链表中</span></span><br><span class="line">    </span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>   再来看看这个收包处理函数：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">packet_rcv</span><span class="params">(struct sk_buff *skb, struct net_device *dev,struct packet_type *pt, struct net_device *orig_dev)</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span> (skb_shared(skb)) &#123;     <span class="comment">// deliver_skb函数调用了refcount_inc，需要skb_clone</span></span><br><span class="line">    </span><br><span class="line">   <span class="class"><span class="keyword">struct</span> <span class="title">sk_buff</span> *<span class="title">nskb</span> = <span class="title">skb_clone</span>(<span class="title">skb</span>, <span class="title">GFP_ATOMIC</span>);</span></span><br><span class="line">    </span><br><span class="line">   <span class="keyword">if</span> (nskb == <span class="literal">NULL</span>)</span><br><span class="line">    </span><br><span class="line">   <span class="keyword">goto</span> drop_n_acct;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (skb_head != skb-&gt;data) &#123;</span><br><span class="line">    </span><br><span class="line">   skb-&gt;data = skb_head;</span><br><span class="line">    </span><br><span class="line">   skb-&gt;len = skb_len;</span><br><span class="line">    </span><br><span class="line">   &#125;</span><br><span class="line">    </span><br><span class="line">   consume_skb(skb);</span><br><span class="line">    </span><br><span class="line">   skb = nskb;</span><br><span class="line">    </span><br><span class="line">   &#125;</span><br><span class="line">    </span><br><span class="line">   spin_lock(&amp;sk-&gt;sk_receive_queue.lock);</span><br><span class="line">    </span><br><span class="line">   po-&gt;stats.stats1.tp_packets++;</span><br><span class="line">    </span><br><span class="line">   sock_skb_set_dropcount(sk, skb);</span><br><span class="line">    </span><br><span class="line">   __skb_queue_tail(&amp;sk-&gt;sk_receive_queue, skb);   <span class="comment">// 添加到队列尾巴</span></span><br><span class="line">    </span><br><span class="line">   spin_unlock(&amp;sk-&gt;sk_receive_queue.lock);</span><br><span class="line">    </span><br><span class="line">   sk-&gt;sk_data_ready(sk);  <span class="comment">// 唤醒处于TASK_INTERRUPTIBLE的等待线程</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>到这里，驱动到socket buffer，这条路就通了。</p>
+<h2 id="4-数据层面：内核驱动可以与用户态零拷贝吗？"><a href="#4-数据层面：内核驱动可以与用户态零拷贝吗？" class="headerlink" title="4. 数据层面：内核驱动可以与用户态零拷贝吗？"></a>4. 数据层面：内核驱动可以与用户态零拷贝吗？</h2><p>socket buffer到用户态，在调用recvfrom接收报文时，是存在数据从内核态拷贝到用户态的，另外也会导致内核态和用户态的频繁切换。</p>
+<p>下面探讨下，用户态和内核态数据零拷贝的可行性方案！</p>
+<p><img src="/pic/pf_packet002.png" alt="img002"></p>
+<p>上图所示，描述了试想可行的改动方案：</p>
+<p>  1）创建buf_pool，其原理基于内核态和用户态虚拟地址，其实都对应一个物理地址，既然这样，我们创建一个基于这个基准地址的buf poll。它们通过操作自己的内存池控制块，来共同管理内存。不同空间，虽然是两个不同的基地址，k_ptr和u_ptr，其实，它们是在不同地址空间的映射而已，对于物理内存，是同样的。然后，每次操作，传递的是，与自己的基地址的偏移，到了另外一个空间，基地址加上这个偏移地址，不就是要访问的地址了。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">fd =open(/dev/mem, rw)    </span><br><span class="line">u_ptr = mmap(<span class="number">0</span>,...fd,...,phy_addr)      <span class="comment">// phy_addr，通过sys_call获得</span></span><br><span class="line">recv_pkt     msg1: offset1、size1           <span class="comment">// 消息传递的是偏移和大小</span></span><br></pre></td></tr></table></figure></p>
+<hr>
+<p>原文1：<a href="https://blog.csdn.net/somyjun/article/details/84589579" target="_blank" rel="noopener">https://blog.csdn.net/somyjun/article/details/84589579</a> </p>
+<p>原文2：<a href="https://www.cnblogs.com/cdwodm/archive/2012/09/22/2698163.html" target="_blank" rel="noopener">https://www.cnblogs.com/cdwodm/archive/2012/09/22/2698163.html</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/07/28/SO-BINDTODEVICE/" rel="next" title="SO_BINDTODEVICE">
+                <i class="fa fa-chevron-left"></i> SO_BINDTODEVICE
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.gif" alt="as3522">
+            
+              <p class="site-author-name" itemprop="name">as3522</p>
+              <p class="site-description motion-element" itemprop="description">personal blog</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">44</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#PF-PACKET"><span class="nav-number">1.</span> <span class="nav-text">PF_PACKET</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-什么PF-PACKET类型的socket"><span class="nav-number">1.1.</span> <span class="nav-text">1. 什么PF_PACKET类型的socket</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-PF-PACKET类型socket应用场合"><span class="nav-number">1.2.</span> <span class="nav-text">2. PF_PACKET类型socket应用场合</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-数据层面：驱动程序怎么把报文送到相应的socket-buffer"><span class="nav-number">1.3.</span> <span class="nav-text">3. 数据层面：驱动程序怎么把报文送到相应的socket buffer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-数据层面：内核驱动可以与用户态零拷贝吗？"><span class="nav-number">1.4.</span> <span class="nav-text">4. 数据层面：内核驱动可以与用户态零拷贝吗？</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">as3522</span>
+
+  
+</div>
+
+
+  <div class="powered-by">个人网站 <a class="theme-link" target="_blank" href="http://www.as3522.com">as3522</a> </div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">By-as3522 </div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
