@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="as3522" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="这几天在处理一些协议上面的东西，还算简单吧，封装一些字段然后发出去。 问题就出现在了发出去这个地方，发的地方使用的是writev,writev可以发送多个分散的，不连续的内存里面的东西。比方说，我封装了http的头部，放到了一个httpHeadBuf里面，然后又组装了body,放到了sendBuf里面，在组包的时候，各自组包互不干涉。然后发送的时候，使用writev进行发送，writev以顺序io">
+<meta name="keywords" content="as3522">
+<meta property="og:type" content="article">
+<meta property="og:title" content="writev遇到非阻塞IO">
+<meta property="og:url" content="http://www.tangyilong.com/2019/08/03/writev遇到非阻塞IO/index.html">
+<meta property="og:site_name" content="as3522">
+<meta property="og:description" content="这几天在处理一些协议上面的东西，还算简单吧，封装一些字段然后发出去。 问题就出现在了发出去这个地方，发的地方使用的是writev,writev可以发送多个分散的，不连续的内存里面的东西。比方说，我封装了http的头部，放到了一个httpHeadBuf里面，然后又组装了body,放到了sendBuf里面，在组包的时候，各自组包互不干涉。然后发送的时候，使用writev进行发送，writev以顺序io">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-08-03T11:37:32.905Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="writev遇到非阻塞IO">
+<meta name="twitter:description" content="这几天在处理一些协议上面的东西，还算简单吧，封装一些字段然后发出去。 问题就出现在了发出去这个地方，发的地方使用的是writev,writev可以发送多个分散的，不连续的内存里面的东西。比方说，我封装了http的头部，放到了一个httpHeadBuf里面，然后又组装了body,放到了sendBuf里面，在组包的时候，各自组包互不干涉。然后发送的时候，使用writev进行发送，writev以顺序io">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://www.tangyilong.com/2019/08/03/writev遇到非阻塞IO/">
+
+
+
+
+
+  <title>writev遇到非阻塞IO | as3522</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+
+   <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;"></canvas> 
+      <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+	     <script type="text/javascript" src="/js/src/fireworks.js"></script>
+
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">as3522</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.tangyilong.com/2019/08/03/writev遇到非阻塞IO/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="as3522">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="as3522">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">writev遇到非阻塞IO</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-03T19:32:26+08:00">
+                2019-08-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>这几天在处理一些协议上面的东西，还算简单吧，封装一些字段然后发出去。</p>
+<p>问题就出现在了发出去这个地方，发的地方使用的是<code>writev</code>,writev可以发送多个分散的，不连续的内存里面的东西。比方说，我封装了http的头部，放到了一个httpHeadBuf里面，然后又组装了body,放到了sendBuf里面，在组包的时候，各自组包互不干涉。然后发送的时候，使用writev进行发送，writev以顺序iov[0]、iov[1]至iov[iovcnt-1]从各缓冲区中聚集输出数据到fd。</p>
+<p>读的时候呢也是这样从fd中读到不同数据到不同的buf里面，各自处理。</p>
+<p>是不是很巧妙的方式？</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/uio.h&gt;</span></span></span><br><span class="line"><span class="keyword">ssize_t</span> readv(<span class="keyword">int</span> fd, <span class="keyword">const</span> struct iovec *iov, <span class="keyword">int</span> iovcnt);</span><br><span class="line"><span class="keyword">ssize_t</span> writev(<span class="keyword">int</span> fd, <span class="keyword">const</span> struct iovec *iov, <span class="keyword">int</span> iovcnt);</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">iovec</span> &#123;</span></span><br><span class="line">    <span class="keyword">void</span>  *iov_base;    <span class="comment">/* Starting address */</span></span><br><span class="line">    <span class="keyword">size_t</span> iov_len;     <span class="comment">/* Number of bytes to transfer */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>还有一个很巧妙的地方在于，当writev遇到了非阻塞socket，就会发生神奇的事情。</p>
+<h2 id="阻塞-非阻塞"><a href="#阻塞-非阻塞" class="headerlink" title="阻塞 非阻塞"></a>阻塞 非阻塞</h2><p>在网络编程中,一个套接字sockfd,它默认就是阻塞IO</p>
+<p>1、阻塞IO模型</p>
+<p>　　最传统的一种IO模型，即在读写数据过程中会发生阻塞现象。</p>
+<p>　　当用户线程发出IO请求之后，内核会去查看数据是否就绪，如果没有就绪就会等待数据就绪，而用户线程就会处于阻塞状态，用户线程交出CPU。当数据就绪之后，内核会将数据拷贝到用户线程，并返回结果给用户线程，用户线程才解除block状态。</p>
+<p>   典型的阻塞IO模型的例子为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">data = socket.read();</span><br></pre></td></tr></table></figure>
+<p>   如果数据没有就绪，就会一直阻塞在read方法。</p>
+<p>2、非阻塞IO模型</p>
+<p>   当用户线程发起一个read操作后，并不需要等待，而是马上就得到了一个结果。如果结果是一个error时，它就知道数据还没有准备好，于是它可以再次发送read操作。一旦内核中的数据准备好了，并且又再次收到了用户线程的请求，那么它马上就将数据拷贝到了用户线程，然后返回。</p>
+<p>   所以事实上，在非阻塞IO模型中，用户线程需要不断地询问内核数据是否就绪，也就说非阻塞IO不会交出CPU，而会一直占用CPU。</p>
+<p>   典型的非阻塞IO模型一般如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span>(<span class="literal">true</span>)&#123;</span><br><span class="line">    data = socket.read();</span><br><span class="line">    <span class="keyword">if</span>(data!= error)&#123;</span><br><span class="line">        处理数据</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>   但是对于非阻塞IO就有一个非常严重的问题，在while循环中需要不断地去询问内核数据是否就绪，这样会导致CPU占用率非常高，因此一般情况下很少使用while循环这种方式来读取数据。一般使用epoll, select, poll等来配合使用。</p>
+<h2 id="writev-readv"><a href="#writev-readv" class="headerlink" title="writev readv"></a>writev readv</h2><h3 id="为什么引出readv-和writev"><a href="#为什么引出readv-和writev" class="headerlink" title="为什么引出readv()和writev()"></a>为什么引出readv()和writev()</h3><p>  1.因为使用read()将数据读到不连续的内存、使用write()将不连续的内存发送出去，要经过多次的调用read、write<br>  如果要从文件中读一片连续的数据至进程的不同区域，有两种方案：①使用read()一次将它们读至一个较大的缓冲区中，然后将它们分成若干部分复制到不同的区域； ②调用read()若干次分批将它们读至不同区域。<br>同样，如果想将程序中不同区域的数据块连续地写至文件，也必须进行类似的处理。<br>  2.怎么解决多次系统调用+拷贝带来的开销呢？<br>  UNIX提供了另外两个函数—readv()和writev()，它们只需一次系统调用就可以实现在文件和进程的多个缓冲区之间传送数据，免除了多次系统调用或复制数据的开销。</p>
+<h3 id="readv-writev"><a href="#readv-writev" class="headerlink" title="readv/writev"></a>readv/writev</h3><p>在一次函数调用中：<br>① writev以顺序iov[0]、iov[1]至iov[iovcnt-1]从各缓冲区中聚集输出数据到fd<br>② readv则将从fd读入的数据按同样的顺序散布到各缓冲区中，readv总是先填满一个缓冲区，然后再填下一个</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/uio.h&gt;</span></span></span><br><span class="line"><span class="keyword">ssize_t</span> readv(<span class="keyword">int</span> fd, <span class="keyword">const</span> struct iovec *iov, <span class="keyword">int</span> iovcnt);</span><br><span class="line"><span class="keyword">ssize_t</span> writev(<span class="keyword">int</span> fd, <span class="keyword">const</span> struct iovec *iov, <span class="keyword">int</span> iovcnt);</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">iovec</span> &#123;</span></span><br><span class="line">    <span class="keyword">void</span>  *iov_base;    <span class="comment">/* Starting address */</span></span><br><span class="line">    <span class="keyword">size_t</span> iov_len;     <span class="comment">/* Number of bytes to transfer */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>(1) 参数：readv和writev的第一个参数fd是个文件描述符，第二个参数是指向iovec数据结构的一个指针，其中iov_base为缓冲区首地址，iov_len为缓冲区长度，参数iovcnt指定了iovec的个数。<br>(2) 返回值：函数调用成功时返回读、写的总字节数，失败时返回-1并设置相应的errno。</p>
+<p>示例代码<br>writev：指定了两个缓冲区，str0和str1，内容输出到标准输出，并打印实际输出的字节数<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// writevex.c</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/uio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> *str0 = <span class="string">"hello "</span>;</span><br><span class="line">    <span class="keyword">char</span> *str1 = <span class="string">"world\n"</span>;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">iovec</span> <span class="title">iov</span>[2];</span></span><br><span class="line">    <span class="keyword">ssize_t</span> nwritten;</span><br><span class="line"></span><br><span class="line">    iov[<span class="number">0</span>].iov_base = str0;</span><br><span class="line">    iov[<span class="number">0</span>].iov_len = <span class="built_in">strlen</span>(str0);</span><br><span class="line">    iov[<span class="number">1</span>].iov_base = str1;</span><br><span class="line">    iov[<span class="number">1</span>].iov_len = <span class="built_in">strlen</span>(str1);</span><br><span class="line">    </span><br><span class="line">    nwritten = writev(STDOUT_FILENO, iov, <span class="number">2</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%ld bytes written.\n"</span>, nwritten);</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">exit</span>(EXIT_SUCCESS);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>执行结果<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ gcc writevex.c </span><br><span class="line">$ ./a.out </span><br><span class="line">hello world</span><br><span class="line">12 bytes written.</span><br></pre></td></tr></table></figure></p>
+<p>readv：从标准输入读数据，缓冲区为长度是（8 - 1）的buf1和buf2，并打印读到的字节总数和两个缓冲区各自的内容<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/uio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> buf1[<span class="number">8</span>] = &#123; <span class="number">0</span> &#125;;</span><br><span class="line">    <span class="keyword">char</span> buf2[<span class="number">8</span>] = &#123; <span class="number">0</span> &#125;;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">iovec</span> <span class="title">iov</span>[2];</span></span><br><span class="line">    <span class="keyword">ssize_t</span> nread;</span><br><span class="line"></span><br><span class="line">    iov[<span class="number">0</span>].iov_base = buf1;</span><br><span class="line">    iov[<span class="number">0</span>].iov_len = <span class="keyword">sizeof</span>(buf1) - <span class="number">1</span>;</span><br><span class="line">    iov[<span class="number">1</span>].iov_base = buf2;</span><br><span class="line">    iov[<span class="number">1</span>].iov_len = <span class="keyword">sizeof</span>(buf2) - <span class="number">1</span>;</span><br><span class="line">    </span><br><span class="line">    nread = readv(STDIN_FILENO, iov, <span class="number">2</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%ld bytes read.\n"</span>, nread);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"buf1: %s\n"</span>, buf1);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"buf2: %s\n"</span>, buf2);</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">exit</span>(EXIT_SUCCESS);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>执行结果：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> gcc readvex.c</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ./a.out </span></span><br><span class="line">helloreadv</span><br><span class="line">11 bytes read.</span><br><span class="line">buf1: hellore</span><br><span class="line">buf2: adv</span><br></pre></td></tr></table></figure></p>
+<h2 id="writev的问题"><a href="#writev的问题" class="headerlink" title="writev的问题"></a>writev的问题</h2><p>POSIX提供了一个比write函数更加高级的writev，在很多场景下，它相对于write有一定的优势。但是并没有什么特别的。APUE一书将writev的介绍放在了Advanced I/O部分，个人拙见，它和write应该是属于同层次的IO，谈不上Advanced。</p>
+<h3 id="writev并不比write高级"><a href="#writev并不比write高级" class="headerlink" title="writev并不比write高级"></a>writev并不比write高级</h3><p>大体而言，write面向的是连续内存块，writev面向的是分散的数据块，两个函数的最终结果都是将内容写入连续的空间。</p>
+<p>假设我们需要将N个key-value组合dump到文件中。</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">key1</span> = val1</span><br><span class="line"><span class="attr">key2</span> = val2...</span><br><span class="line"><span class="attr">keyN</span> = valN</span><br></pre></td></tr></table></figure>
+<p>已知每个pair的空间是单独分配的，那么在这个场景下，如果想要使用write完成任务，有如下2种做法：</p>
+<ol>
+<li>分配一块大空间，将每个pair复制到其中，然后write</li>
+<li>分别write每个pair</li>
+</ol>
+<p>在数据量不是太大的情况下，方案1比方案2要高效，应为syscall的开销是很可观的，当每个pair的数据都比较大时，首选方案2。怎么判断这里的临界值？对于磁盘IO，考虑pagesize，这个临界值很可能是N*pagesize(N&gt;=1)，当然我没有具体考证。</p>
+<p>这个时候，我们就会期望能够有一个函数可以做到：</p>
+<ol>
+<li>一次syscall</li>
+<li>无拷贝</li>
+</ol>
+<p>显然，它就是writev了，其函数原型如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">writev(<span class="keyword">int</span> fd, struct iovect* iov, <span class="keyword">int</span> iovcnt); </span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">iovec</span> &#123;</span></span><br><span class="line">    <span class="keyword">void</span>* iov_base;</span><br><span class="line">    <span class="keyword">size_t</span> iov_len;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>iov_base就是每个pair的基址，iov_len则是长度，不用包含“\0”。</p>
+<p>APUE中指出writev的固有开销比write大，因此对于小内存的写而言，很可能也没有copy+write高效，具体参考APUE(en) P.522。另外，iovcnt不应超过IOV_MAX，Linux上的IOV_MAX=1024，且iov_len的总和不应溢出，虽然超过限制的情况很少出现，但应该考虑到。</p>
+<p>除此之外，另一种比较高效的做法是，分配一大块内存，想办法让所有的pair连续，这样就不需要考虑write了，但是很多情况下你可能根本无法预先获知总长度，例如从socket中读取的数据，为了能够容纳所有的数据，就不得不分配适当大的数据，当不够用的时候再realloc。</p>
+<p>如此一来，会造成空间利用率稍低的问题，且realloc很可能带来潜在的内存拷贝开销。</p>
+<h3 id="writev的实现"><a href="#writev的实现" class="headerlink" title="writev的实现"></a>writev的实现</h3><p>在Linux2.2之前，由于IOV_MAX过于小，glibc会提供一个wrapper function，代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Write data pointed by the buffers described by VECTOR, which</span></span><br><span class="line"><span class="comment">   is a vector of COUNT 'struct iovec's, to file descriptor FD.</span></span><br><span class="line"><span class="comment">   The data is written in the order specified.</span></span><br><span class="line"><span class="comment">   Operates just like 'write' (see &lt;unistd.h&gt;) except that the data</span></span><br><span class="line"><span class="comment">   are taken from VECTOR instead of a contiguous buffer.  */</span></span><br><span class="line"><span class="keyword">ssize_t</span> __writev (<span class="keyword">int</span> fd, <span class="keyword">const</span> struct iovec *<span class="built_in">vector</span>, <span class="keyword">int</span> count) &#123;</span><br><span class="line">  <span class="comment">/* Find the total number of bytes to be written.  */</span></span><br><span class="line">  <span class="keyword">size_t</span> bytes = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; count; ++i) &#123;</span><br><span class="line">      <span class="comment">/* Check for ssize_t overflow.  */</span></span><br><span class="line">      <span class="keyword">if</span> (SSIZE_MAX - bytes &lt; <span class="built_in">vector</span>[i].iov_len) &#123;</span><br><span class="line">          __set_errno (EINVAL);</span><br><span class="line">          <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      bytes += <span class="built_in">vector</span>[i].iov_len;</span><br><span class="line">  &#125;</span><br><span class="line"> </span><br><span class="line">  <span class="comment">/* Allocate a temporary buffer to hold the data.  We should normally</span></span><br><span class="line"><span class="comment">     use alloca since it's faster and does not require synchronization</span></span><br><span class="line"><span class="comment">     with other threads.  But we cannot if the amount of memory</span></span><br><span class="line"><span class="comment">     required is too large.  */</span></span><br><span class="line">  <span class="keyword">char</span> *buffer;</span><br><span class="line">  <span class="keyword">char</span> *malloced_buffer __attribute__ ((__cleanup__ (ifree))) = <span class="literal">NULL</span>;</span><br><span class="line">  <span class="keyword">if</span> (__libc_use_alloca (bytes))</span><br><span class="line">      buffer = (<span class="keyword">char</span> *) __alloca (bytes);</span><br><span class="line">  <span class="keyword">else</span> &#123;</span><br><span class="line">      malloced_buffer = buffer = (<span class="keyword">char</span> *) <span class="built_in">malloc</span> (bytes);</span><br><span class="line">      <span class="keyword">if</span> (buffer == <span class="literal">NULL</span>)</span><br><span class="line">    <span class="comment">/* XXX I don't know whether it is acceptable to try writing</span></span><br><span class="line"><span class="comment">       the data in chunks.  Probably not so we just fail here.  */</span></span><br><span class="line">          <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line"> </span><br><span class="line">  <span class="comment">/* Copy the data into BUFFER.  */</span></span><br><span class="line">  <span class="keyword">size_t</span> to_copy = bytes;</span><br><span class="line">  <span class="keyword">char</span> *bp = buffer;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; count; ++i) &#123;</span><br><span class="line">      <span class="keyword">size_t</span> copy = MIN (<span class="built_in">vector</span>[i].iov_len, to_copy);</span><br><span class="line">      bp = __mempcpy ((<span class="keyword">void</span> *) bp, (<span class="keyword">void</span> *) <span class="built_in">vector</span>[i].iov_base, copy);</span><br><span class="line">      to_copy -= copy;</span><br><span class="line">      <span class="keyword">if</span> (to_copy == <span class="number">0</span>) <span class="keyword">break</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">ssize_t</span> bytes_written = __write (fd, buffer, bytes);</span><br><span class="line">  <span class="keyword">return</span> bytes_written;</span><br><span class="line">&#125;</span><br><span class="line">weak_alias (__writev, writev)</span><br></pre></td></tr></table></figure>
+<p>大致流程就是：</p>
+<ol>
+<li>计算总长度</li>
+<li>分配空间(栈/堆)</li>
+<li>拷贝数据</li>
+<li>使用write</li>
+</ol>
+<p>这么做完全是权宜之计，并没有体现writev的优点，如果没有一次写完，那么就需要多次复制。</p>
+<p>内核中的实现则是有点类似分别对内存块write，只不过由于已经位于内核空间，自然没有什么syscall的开销了，也能使用更加直接的方式，比如直接写buf，代码在fs/read_write.c，感兴趣的读者可以挖掘下。</p>
+<h3 id="writev的问题-1"><a href="#writev的问题-1" class="headerlink" title="writev的问题"></a>writev的问题</h3><p>writev的出发点是好的，并且看起来似乎也比较美好，因此很受推崇。</p>
+<p>通过这两天的使用情况来看，我个人认为writev在设计上可能存在一定的问题，产生这些问题的具体场景为socket IO，令人遗憾的是，尽管很多人推崇writev，但是google相关内容，资料却少得可怜。。。</p>
+<p>对于socket IO而言，write经常不能够一次写完，好在它会返回已经写了多少字节，如果继续写，此时就会阻塞；对于非阻塞socket而言，write会在buf不可写时返回的EAGAIN，那么在下一次write时，便可通过之前返回的值重新确定基址和长度。</p>
+<p>manual中对于writev的相关描述为：和write类似。也就是说，它也会返回已经写入的长度或者EAGAIN(errno)。千万不可天真地认为，每次传同样的iovec就能解决问题，writev并不会为你做任何事情，重新处理iovec是调用者的任务。</p>
+<p>问题是，这个返回值“实用性”并不高，因为参数传入的是iovec数组，计量单位是iovcnt，而不是字节数，用户依旧需要通过遍历iovec来计算新的基址，另外写入数据的“结束点”可能位于一个iovec的中间某个位置，因此需要调整临界iovec的io_base和io_len。</p>
+<p>可以通过如下代码确认：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">while</span> (iov_iter_count(iter)) &#123; </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">iovec</span> <span class="title">iovec</span> = <span class="title">iov_iter_iovec</span>(<span class="title">iter</span>);</span> </span><br><span class="line">    <span class="keyword">ssize_t</span> nr;</span><br><span class="line">    nr = fn(filp, iovec.iov_base, iovec.iov_len, ppos); </span><br><span class="line"> </span><br><span class="line">    <span class="keyword">if</span> (nr &lt; <span class="number">0</span>) &#123; </span><br><span class="line">        <span class="keyword">if</span> (!ret) </span><br><span class="line">            ret = nr; </span><br><span class="line">        <span class="keyword">break</span>;   </span><br><span class="line">    &#125;                    </span><br><span class="line">    ret += nr;                     </span><br><span class="line">    <span class="keyword">if</span> (nr != iovec.iov_len)       </span><br><span class="line">        <span class="keyword">break</span>;                             </span><br><span class="line">    iov_iter_advance(iter, nr);                      </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>个人认为这个设计和write并不是一个风格，write使用很方便，writev却很繁琐，难道仅从参数和返回的类型就能确定一套API的风格了？</p>
+<p>个人认为下述方案或许更好：</p>
+<ol>
+<li>返回已经写入了多少个iovec，并通过参数返回部分写入的iovec的字节数</li>
+<li>提供offset参数，供指定写入的开始位置</li>
+</ol>
+<p>在do_loop_readv_writev中可以直接加入相关逻辑，对于do_iter_readv_writev或许会麻烦点，但是在回调中应该不难解决问题。好吧，说再多也只是纸上谈兵。相信这并不是实现者的问题，而是POSIX在制定接口时就欠缺考虑。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>对于磁盘IO，可以放心使用writev，对于socket，尤其是非阻塞socket，还是尽可能避免的好，实现连续的内存块反而可以简化实现。</p>
+<p>好吧,我写这篇文章,其实只是想吐槽一下writev函数的,如果你用这个函数来处理非阻塞的文件描述符,应该会感觉这个玩意和鸡肋一样.</p>
+<p>man手册里说,它的行为和write差不多:</p>
+<p>The writev() system call works just like write(2) except that multiple buffers are written out.</p>
+<p>不过writev是分散写,也就是你的数据可以这里一块,那里一块,然后只要将这些数据的首地址,长度什么的写到一个iovc的结构体数组里,传递给writev,writev就帮你来写这些数据,在你看来,分散的数据就像是连成了一体.</p>
+<p>对于阻塞IO,这个函数应该是很好用的,对于非阻塞IO,你如果想用的话,要做的工作估计还很多,我们假想一下,如果writev返回一个大于0的值num,这个值又小于所有要传递的文件块的总长度,这意味着什么,意味着数据还没有写完啊.如果你还想写的话,你下一次调用writev的时候要重新整理iovc数组,这坑爹呢.</p>
+<p>首先,你要一块一块比对大小,确定已经写了多少块数据,然后对于那个写了一点的块,要将iovc[0].iov_base指向下一个开始的字节…,好吧,听起来就烦,好吧,你看到了,其实还不如直接用write呢.</p>
+<hr>
+<p>原文：<a href="https://blog.csdn.net/lishuhuakai/article/details/52967050" target="_blank" rel="noopener">https://blog.csdn.net/lishuhuakai/article/details/52967050</a> </p>
+<p>原文：<a href="https://blog.csdn.net/weixin_36750623/article/details/84579243" target="_blank" rel="noopener">https://blog.csdn.net/weixin_36750623/article/details/84579243</a> </p>
+<p>原文：<a href="https://blog.csdn.net/linuxheik/article/details/76125411" target="_blank" rel="noopener">https://blog.csdn.net/linuxheik/article/details/76125411</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/07/28/PF-PACKET/" rel="next" title="PF_PACKET">
+                <i class="fa fa-chevron-left"></i> PF_PACKET
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.gif" alt="as3522">
+            
+              <p class="site-author-name" itemprop="name">as3522</p>
+              <p class="site-description motion-element" itemprop="description">personal blog</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">45</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#阻塞-非阻塞"><span class="nav-number">1.</span> <span class="nav-text">阻塞 非阻塞</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#writev-readv"><span class="nav-number">2.</span> <span class="nav-text">writev readv</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么引出readv-和writev"><span class="nav-number">2.1.</span> <span class="nav-text">为什么引出readv()和writev()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#readv-writev"><span class="nav-number">2.2.</span> <span class="nav-text">readv/writev</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#writev的问题"><span class="nav-number">3.</span> <span class="nav-text">writev的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#writev并不比write高级"><span class="nav-number">3.1.</span> <span class="nav-text">writev并不比write高级</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#writev的实现"><span class="nav-number">3.2.</span> <span class="nav-text">writev的实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#writev的问题-1"><span class="nav-number">3.3.</span> <span class="nav-text">writev的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">3.4.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">as3522</span>
+
+  
+</div>
+
+
+  <div class="powered-by">个人网站 <a class="theme-link" target="_blank" href="http://www.as3522.com">as3522</a> </div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">By-as3522 </div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
